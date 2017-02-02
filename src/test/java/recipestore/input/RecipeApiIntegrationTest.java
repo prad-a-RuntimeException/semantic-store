@@ -3,14 +3,16 @@ package recipestore.input;
 import lombok.SneakyThrows;
 import org.apache.jena.ext.com.google.common.io.Resources;
 import org.apache.jena.rdf.model.Resource;
-import org.apache.jena.rdf.model.Statement;
+import org.hamcrest.Matchers;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import recipestore.db.triplestore.FileBasedTripeStoreDAO;
 
 import java.io.InputStream;
-import java.util.function.Predicate;
-import java.util.stream.Stream;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class RecipeApiIntegrationTest {
 
@@ -27,25 +29,11 @@ public class RecipeApiIntegrationTest {
     @Test
     public void shouldGetRecipeDataFromTheTripleStore() {
 
-        final Stream<Statement> recipeData = recipeApi.getRecipeData();
+        final List<Resource> recipeData = recipeApi.getRecipeData(resource -> RecipePredicates.filterByUrl.test(resource, "allrecipes")).collect(Collectors.toList());
 
-        Predicate<Resource> resourceUrlPredicate
-                = resource -> {
-            final Statement property = resource.getProperty(resource.getModel().getProperty("http://schema.org/Recipe/url"));
-            return property != null && property.getObject() != null && property.getObject().toString().contains("allrecipes");
-        };
 
-        recipeData
-                .map(stmt -> stmt.getSubject().asResource())
-                .filter(resourceUrlPredicate)
-                .forEach(recipe -> {
+        assertThat("Should have allrecipes records ", recipeData.size(), Matchers.greaterThan(1));
 
-                    recipe.listProperties()
-                            .forEachRemaining(stmt -> {
-                                System.out.println(stmt);
-                            });
-
-                });
 
     }
 

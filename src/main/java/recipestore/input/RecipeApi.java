@@ -3,12 +3,12 @@ package recipestore.input;
 
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.Resource;
-import org.apache.jena.rdf.model.Statement;
 import org.jooq.lambda.Seq;
 import recipestore.db.triplestore.TripleStoreDAO;
 
 import javax.inject.Inject;
 import java.io.InputStream;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 public class RecipeApi {
@@ -34,13 +34,16 @@ public class RecipeApi {
         return tripleStoreDAO.getModel();
     }
 
-    public Stream<Statement> getRecipeData() {
+    public Stream<Resource> getRecipeData(Predicate<Resource> resourceUrlPredicate) {
         final Model model = tripleStoreDAO.getModel();
 
         return Seq.seq(model.listStatements())
                 .filter(stmt -> stmt.getObject().canAs(Resource.class))
                 .filter(stmt -> stmt.getObject().asResource().getURI() != null)
-                .filter(stmt -> stmt.getObject().asResource().getURI().equals("http://schema.org/Recipe"));
+                .filter(stmt -> stmt.getObject().asResource().getURI().equals("http://schema.org/Recipe"))
+                .map(stmt -> stmt.getSubject().asResource())
+                .filter(resourceUrlPredicate);
+
 
     }
 
