@@ -1,4 +1,4 @@
-package recipestore.input.db.triplestore;
+package recipestore.db.triplestore;
 
 import lombok.Getter;
 import lombok.SneakyThrows;
@@ -31,7 +31,7 @@ public class FileBasedTripeStoreDAO implements TripleStoreDAO {
     private Model model;
 
     @Inject
-    public FileBasedTripeStoreDAO(String datasetName) {
+    public FileBasedTripeStoreDAO(final String datasetName) {
         this.datasetName = datasetName;
         createModel();
     }
@@ -48,11 +48,11 @@ public class FileBasedTripeStoreDAO implements TripleStoreDAO {
     private Supplier<String> getFileLocation = () -> format("%s/%s", BASE_LOCATION, this.datasetName);
 
     @Override
-    public Model populate(InputStream fileInputStream) {
+    public Model populate(InputStream datasetStream) {
         if (model == null || model.isClosed()) {
             createModel();
         }
-        RDFDataMgr.read(dataset, fileInputStream, Lang.NQUADS);
+        RDFDataMgr.read(dataset, datasetStream, Lang.NQUADS);
         return this.model;
     }
 

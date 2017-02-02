@@ -1,4 +1,4 @@
-package recipestore.input.db.triplestore;
+package recipestore.db.triplestore;
 
 import org.junit.Test;
 

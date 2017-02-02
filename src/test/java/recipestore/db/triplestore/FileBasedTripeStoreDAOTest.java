@@ -1,4 +1,4 @@
-package recipestore.input.db.triplestore;
+package recipestore.db.triplestore;
 
 import lombok.SneakyThrows;
 import org.apache.jena.rdf.model.Resource;
