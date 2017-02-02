@@ -4,12 +4,12 @@ import dagger.Component;
 import org.apache.jena.rdf.model.Model;
 import recipestore.input.DaggerInputComponent;
 import recipestore.input.InputModule;
-import recipestore.input.RecipeLoader;
+import recipestore.input.RecipeApi;
 
 public class Main {
     @Component(modules = InputModule.class)
     public interface InputComponent {
-        RecipeLoader getRecipeLoader();
+        RecipeApi getRecipeLoader();
     }
 
     public static void main(String[] args) {
@@ -19,7 +19,7 @@ public class Main {
         final recipestore.input.InputComponent inputComponent = DaggerInputComponent.builder()
                 .build();
 
-        inputComponent.getRecipeLoader().loadRecipe();
+        inputComponent.getRecipeLoader().loadRecipe(false);
     }
 
     public static Model getRecipeModel() {
