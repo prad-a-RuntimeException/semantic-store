@@ -30,17 +30,14 @@ public class PropertyGraphCreator {
     @Getter
     private final Stream<PropertyGraph> resources;
 
-    public Stream<PropertyGraph> getResources() {
-        return resources;
-    }
 
     public PropertyGraphCreator(final Stream<Resource> resources) {
         Tuple2<Seq<Tuple2<Resource, Long>>, Seq<Tuple2<Resource, Long>>> partitionedResourceStream =
                 partition(zipWithIndex(resources), (tup) -> tup.v2() < 10);
-        this.graphList = partitionedResourceStream.v1().map(resource -> resource.v1())
-                .map(resource -> extractInstance(resource)).collect(Collectors.toList());
-        this.resources = Seq.concat(partitionedResourceStream.v2().map(resource -> resource.v1())
-                .map(resource -> extractInstance(resource)), graphList.stream());
+        this.graphList = partitionedResourceStream.v1().map(Tuple2::v1)
+                .map(this::extractInstance).collect(Collectors.toList());
+        this.resources = Seq.concat(partitionedResourceStream.v2().map(Tuple2::v1)
+                .map(this::extractInstance), graphList.stream());
     }
 
 

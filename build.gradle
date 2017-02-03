@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'application'
     id 'groovy'
+    id 'scala'
     id 'idea'
     id 'net.ltgt.apt' version "0.8"
     id 'com.github.johnrengelman.shadow' version '1.2.3'
@@ -33,6 +34,18 @@ jar {
     }
 }
 
+//sourceSets {
+//    main {
+//        scala {
+//            srcDirs = ['src/main/scala', 'src/main/java']
+//        }
+//        java {
+//            srcDirs = []
+//        }
+//    }
+//}
+
+
 
 
 test {
@@ -48,6 +61,7 @@ repositories {
     maven { url "https://plugins.gradle.org/m2/" }
     maven { url "https://maven.twttr.com" }
     maven { url 'https://jitpack.io' }
+    maven { url 'http://spark-packages.org' }
     flatDir {
         dirs "./libs"
     }
@@ -56,6 +70,14 @@ repositories {
 dependencies {
     compile name: 'auto-phrase-tokenfilter-1.0'
     compile name: 'jwi'
+//    compile group: 'org.apache.spark', name: 'spark-sql_2.11', version: '2.0.0'
+//    compile group: 'com.databricks', name: 'spark-csv_2.11', version: '1.4.0'
+////    compile group: 'graphframes', name: 'graphframes', version: '0.3.0-spark2.0-s_2.11'
+//    runtime(group: 'org.apache.spark', name: 'spark-core_2.11', version: '2.0.0') {
+//        exclude(module: 'slf4j-log4j12')
+//    }
+    compile group: 'org.scala-lang', name: 'scala-library', version: '2.11.4'
+    compile group: 'org.scalactic', name: 'scalactic_2.11', version: '3.0.0'
     compile group: 'ch.qos.logback', name: 'logback-classic', version: '1.1.9'
     compile group: 'ch.qos.logback', name: 'logback-core', version: '1.1.9'
     compile group: 'org.apache.commons', name: 'commons-math3', version: '3.2'
