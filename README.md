@@ -1,3 +1,5 @@
+Build status: <a href="https://circleci.com/gh/prad-a-RuntimeException/semantic-store"><img src="https://circleci.com/gh/prad-a-RuntimeException/semantic-store.svg?style=svg"></a>
+
 ## Synopsis
 
 Provides an insight in to the world of Recipes. This is a reference implementation for 
