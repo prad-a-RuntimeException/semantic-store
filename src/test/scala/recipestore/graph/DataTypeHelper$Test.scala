@@ -4,6 +4,7 @@ import java.util.Date
 import java.util.concurrent.atomic.AtomicInteger
 
 import org.apache.spark.sql.types._
+import org.joda.time.DateTime
 import org.scalatest.{FunSuite, Matchers}
 import org.slf4j.{Logger, LoggerFactory}
 
@@ -13,11 +14,14 @@ class DataTypeHelper$Test extends FunSuite with Matchers {
 
   test("Should parse date object from String") {
 
+    val time = new DateTime().withYear(2009)
+      .withMonthOfYear(9)
+      .withDayOfYear(1)
     Array("9/1/2009", "9/2009", "9-1-2009", "EEE, dd MMM yyyy HH:mm:ss", "EEE MMM dd HH:mm:ss z yyyy")
       .foreach(format => {
         val date: Date = DataTypeHelper.getTimeStamp(format)
         date should be
-        new Date(2009, 9, 1)
+        time.toDate
       })
 
   }

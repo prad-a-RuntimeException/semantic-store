@@ -12,6 +12,7 @@ import scala.util.control.Exception.allCatch
 /**
   * Implmentation based on Spark CSVInferschema function which is private.
   * Used to infer the schemaType dynamically from the object.
+  * TODO: Does not perform merge. Should introduce sampling to handle different data type.
   */
 object DataTypeHelper {
 
@@ -119,10 +120,9 @@ object DataTypeHelper {
   }
 
   private def tryParseCollection(field: AnyRef): DataType = {
-    if (field.isInstanceOf[scala.collection.Iterable[String]]) {
-      DataTypes.createArrayType(StringType)
-    } else {
-      tryParseInteger(field.toString)
+    field match {
+      case a: Iterable[Any] => DataTypes.createArrayType(StringType)
+      case other => tryParseInteger(field.toString)
     }
   }
 
