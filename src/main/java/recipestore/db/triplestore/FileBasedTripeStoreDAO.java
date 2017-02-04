@@ -28,6 +28,7 @@ public class FileBasedTripeStoreDAO implements TripleStoreDAO {
 
     private String datasetName;
     private Dataset dataset;
+    @Getter
     private Model model;
 
     @Inject
