@@ -6,6 +6,11 @@ import recipestore.input.InputModule;
 import recipestore.input.RecipeApi;
 
 class Main {
+
+    public static void main(String[] args) {
+        recipeDataLoader();
+    }
+
     @Component(modules = InputModule.class)
     public interface InputComponent {
         RecipeApi getRecipeLoader();
