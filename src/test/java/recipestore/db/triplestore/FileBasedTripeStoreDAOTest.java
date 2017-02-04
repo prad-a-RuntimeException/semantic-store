@@ -18,7 +18,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 public class FileBasedTripeStoreDAOTest {
 
-    public static final String TEST_FILE = "test_quads.nq";
+    private static final String TEST_FILE = "test_quads.nq";
     private static FileBasedTripeStoreDAO tripleStoreDAO;
 
     @SneakyThrows

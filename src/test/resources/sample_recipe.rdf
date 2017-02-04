@@ -1,0 +1,48 @@
+<rdf:RDF
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:j.0="http://schema.org/Recipe/"
+    xmlns:j.1="http://www.w3.org/1999/02/22-rdf-syntax-ns%23">
+  <rdf:Description>
+    <j.0:recipeYield>16</j.0:recipeYield>
+    <j.0:review rdf:parseType="Resource">
+    </j.0:review>
+    <j.0:author>AUTUMN/FALL</j.0:author>
+    <j.0:description>This is a great recipe for cold spinach dip. Serve it with vegetables, crackers or bread.</j.0:description>
+    <j.0:review rdf:parseType="Resource">
+    </j.0:review>
+    <j.0:aggregateRating rdf:parseType="Resource">
+    </j.0:aggregateRating>
+    <j.0:review rdf:parseType="Resource">
+    </j.0:review>
+    <j.0:ingredients>1 (.4 ounce) packet dry vegetable soup mix</j.0:ingredients>
+    <j.0:review rdf:parseType="Resource">
+    </j.0:review>
+    <j.0:recipeInstructions>In a medium mixing bowl combine spinach, sour cream, mayonnaise and vegetable soup mix. Mix well. Refrigerate it for 4 hours. Stir before serving.</j.0:recipeInstructions>
+    <j.0:ingredients>1 (10 ounce) package frozen chopped spinach, thawed and drained</j.0:ingredients>
+    <j.0:review rdf:parseType="Resource">
+    </j.0:review>
+    <j.0:name>Spinach Dip I</j.0:name>
+    <j.0:nutrition rdf:parseType="Resource">
+    </j.0:nutrition>
+    <j.0:ingredients>1 cup mayonnaise</j.0:ingredients>
+    <j.0:ingredients>1 (8 ounce) container sour cream</j.0:ingredients>
+    <j.0:mainEntityOfPage>True</j.0:mainEntityOfPage>
+    <j.0:review rdf:parseType="Resource">
+    </j.0:review>
+    <j.0:review rdf:parseType="Resource">
+    </j.0:review>
+    <j.0:review rdf:parseType="Resource">
+    </j.0:review>
+    <j.0:image rdf:resource="http://images.media-allrecipes.com/userphotos/720x405/778904.jpg"/>
+    <j.0:review rdf:parseType="Resource">
+    </j.0:review>
+    <j.1:type rdf:resource="http://schema.org/Recipe"/>
+    <j.0:url rdf:resource="http://allrecipes.com/recipe/14864/spinach-dip-i/"/>
+    <j.0:nutrition rdf:parseType="Resource">
+    </j.0:nutrition>
+    <j.0:review rdf:parseType="Resource">
+    </j.0:review>
+    <j.0:review rdf:parseType="Resource">
+    </j.0:review>
+  </rdf:Description>
+</rdf:RDF>

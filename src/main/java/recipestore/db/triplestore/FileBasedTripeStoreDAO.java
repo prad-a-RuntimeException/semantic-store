@@ -39,21 +39,23 @@ public class FileBasedTripeStoreDAO implements TripleStoreDAO {
     private void createModel() {
         File file = new File(BASE_LOCATION);
         if (!file.exists() && !file.isDirectory()) {
-            file.mkdir();
+            final boolean mkdir = file.mkdir();
+            if (!mkdir) {
+                throw new RuntimeException("Creation of directory failed ");
+            }
         }
         this.dataset = createDataset(getFileLocation.get());
         this.model = dataset.getNamedModel("urn:x-arq:UnionGraph");
     }
 
-    private Supplier<String> getFileLocation = () -> format("%s/%s", BASE_LOCATION, this.datasetName);
+    private final Supplier<String> getFileLocation = () -> format("%s/%s", BASE_LOCATION, this.datasetName);
 
     @Override
-    public Model populate(InputStream datasetStream) {
+    public void populate(InputStream datasetStream) {
         if (model == null || model.isClosed()) {
             createModel();
         }
         RDFDataMgr.read(dataset, datasetStream, Lang.NQUADS);
-        return this.model;
     }
 
 

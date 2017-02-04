@@ -1,18 +1,14 @@
 package recipestore;
 
 import dagger.Component;
-import org.apache.jena.rdf.model.Model;
 import recipestore.input.DaggerInputComponent;
 import recipestore.input.InputModule;
 import recipestore.input.RecipeApi;
 
-public class Main {
+class Main {
     @Component(modules = InputModule.class)
     public interface InputComponent {
         RecipeApi getRecipeLoader();
-    }
-
-    public static void main(String[] args) {
     }
 
     public static void recipeDataLoader() {
@@ -22,11 +18,5 @@ public class Main {
         inputComponent.getRecipeLoader().loadRecipe(false);
     }
 
-    public static Model getRecipeModel() {
-        final recipestore.input.InputComponent inputComponent = DaggerInputComponent.builder()
-                .build();
-
-        return inputComponent.getRecipeLoader().get();
-    }
 
 }

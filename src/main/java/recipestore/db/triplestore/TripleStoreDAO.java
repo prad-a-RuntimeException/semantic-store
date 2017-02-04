@@ -5,7 +5,7 @@ import org.apache.jena.rdf.model.Model;
 import java.io.InputStream;
 
 public interface TripleStoreDAO {
-    Model populate(InputStream fileInputStream);
+    void populate(InputStream fileInputStream);
 
     void saveAndClose();
 
