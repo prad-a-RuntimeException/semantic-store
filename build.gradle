@@ -8,6 +8,7 @@ plugins {
 }
 
 apply plugin: "jacoco"
+apply from: rootProject.file('gradle/install-git-hooks.gradle')
 
 group 'recipe-semantic-store'
 version '0.1'
@@ -120,5 +121,5 @@ dependencies {
     compile(group: 'org.projectlombok', name: 'lombok', version: '1.16.10')
 }
 
-
+clean.dependsOn installGitHooks
 
