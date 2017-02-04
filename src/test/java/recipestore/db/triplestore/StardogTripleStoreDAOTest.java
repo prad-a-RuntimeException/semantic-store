@@ -1,6 +1,6 @@
 package recipestore.db.triplestore;
 
-import org.junit.Before;
+import org.junit.BeforeClass;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -13,12 +13,9 @@ public class StardogTripleStoreDAOTest extends AbstractTripleStoreDAOTest {
     private static final String TEST_FILE = "test_quads.nq";
     private static StardogTripleStoreDAO tripleStoreDAO;
 
-    @Before
-    public void beforeMethod() {
+    @BeforeClass
+    public static void beforeMethod() {
         org.junit.Assume.assumeTrue("Stardog server should be running locally", isServerAvailable("localhost", 5821));
-    }
-
-    static {
         final InputStream recipeStream;
         try {
             recipeStream = getResource(TEST_FILE).openStream();
@@ -28,6 +25,7 @@ public class StardogTripleStoreDAOTest extends AbstractTripleStoreDAOTest {
             throw new RuntimeException("Failed initializing query ", e);
         }
     }
+
 
     private static boolean isServerAvailable(String host, int port) {
         try {
