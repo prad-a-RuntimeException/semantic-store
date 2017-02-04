@@ -21,14 +21,30 @@ technology.
 
 - Demonstrate learning model based on Ontology. 
 
+## Tools
+
+- Apache Jena version 3.
+
+- Jena TDB as FileBasedTripleStore
+
+- Stardog as a alternative TripleStore
+
+- Spark with GraphFrames support. 
+
+- TinkerPop3 support for property graph
+
+- DSE Graph as the data layer for the TinkerPop graph
+
 ## Installation
 
 ./gradlew clean build
 
 ## API Reference
 
-
 ## Tests
+
+Contains both Java and ScalaModules and uses Junit and ScalaTest for running
+tests. 
 
 ./gradlew test
 
