@@ -1,12 +1,10 @@
 plugins {
     id 'java'
-    id 'application'
     id 'groovy'
     id 'scala'
     id 'idea'
     id "jacoco"
     id 'net.ltgt.apt' version "0.8"
-    id 'com.github.johnrengelman.shadow' version '1.2.3'
 }
 
 apply plugin: "jacoco"
@@ -17,7 +15,6 @@ description = """Recipe Semantic Store"""
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
-mainClassName = 'MainDataLoader'
 
 jacoco {
     toolVersion = "0.7.6.201602180812"
@@ -30,22 +27,6 @@ jacocoTestReport {
     }
 }
 
-
-shadowJar {
-    mergeServiceFiles()
-    classifier = null
-    zip64 true
-    version = null
-    exclude 'META-INF/*.DSA'
-    exclude 'META-INF/*.RSA'
-}
-
-jar {
-    manifest {
-        attributes 'Main-Class': mainClassName,
-                "Implementation-Version": version
-    }
-}
 
 
 
