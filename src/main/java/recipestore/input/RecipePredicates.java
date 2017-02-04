@@ -5,7 +5,7 @@ import org.apache.jena.rdf.model.Statement;
 
 import java.util.function.BiPredicate;
 
-class RecipePredicates {
+public class RecipePredicates {
 
 
     public static final BiPredicate<Resource, String> filterByUrl = (resource, pattern) -> {

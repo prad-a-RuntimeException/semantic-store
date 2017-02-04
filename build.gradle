@@ -4,9 +4,12 @@ plugins {
     id 'groovy'
     id 'scala'
     id 'idea'
+    id "jacoco"
     id 'net.ltgt.apt' version "0.8"
     id 'com.github.johnrengelman.shadow' version '1.2.3'
 }
+
+apply plugin: "jacoco"
 
 group 'recipe-semantic-store'
 version '0.1'
@@ -16,6 +19,16 @@ targetCompatibility = 1.8
 
 mainClassName = 'MainDataLoader'
 
+jacoco {
+    toolVersion = "0.7.6.201602180812"
+}
+jacocoTestReport {
+    reports {
+        xml.enabled false
+        csv.enabled false
+        html.destination "${buildDir}/coverage"
+    }
+}
 
 
 shadowJar {
@@ -34,16 +47,6 @@ jar {
     }
 }
 
-//sourceSets {
-//    main {
-//        scala {
-//            srcDirs = ['src/main/scala', 'src/main/java']
-//        }
-//        java {
-//            srcDirs = []
-//        }
-//    }
-//}
 
 
 test {
@@ -131,3 +134,6 @@ dependencies {
     testCompile group: 'com.github.javafaker', name: 'javafaker', version: '0.12'
     compile(group: 'org.projectlombok', name: 'lombok', version: '1.16.10')
 }
+
+
+
