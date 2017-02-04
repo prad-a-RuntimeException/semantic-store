@@ -1,6 +1,8 @@
 package recipestore.db.triplestore;
 
 import org.junit.BeforeClass;
+import org.junit.Ignore;
+import org.junit.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -8,6 +10,7 @@ import java.net.Socket;
 
 import static com.google.common.io.Resources.getResource;
 
+@Ignore
 public class StardogTripleStoreDAOTest extends AbstractTripleStoreDAOTest {
 
     private static final String TEST_FILE = "test_quads.nq";
@@ -15,7 +18,8 @@ public class StardogTripleStoreDAOTest extends AbstractTripleStoreDAOTest {
 
     @BeforeClass
     public static void beforeMethod() {
-        org.junit.Assume.assumeTrue("Stardog server should be running locally", isServerAvailable("localhost", 5821));
+        org.junit.Assume.assumeTrue("Stardog server should be running locally",
+                isServerAvailable("localhost", 5821));
         final InputStream recipeStream;
         try {
             recipeStream = getResource(TEST_FILE).openStream();
