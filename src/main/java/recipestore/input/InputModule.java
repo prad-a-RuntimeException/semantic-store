@@ -2,7 +2,7 @@ package recipestore.input;
 
 import dagger.Module;
 import dagger.Provides;
-import recipestore.db.triplestore.FileBasedTripeStoreDAO;
+import recipestore.db.triplestore.FileBasedTripleStoreDAO;
 import recipestore.db.triplestore.TripleStoreDAO;
 
 import java.io.IOException;
@@ -19,7 +19,7 @@ public class InputModule {
 
     @Provides
     public static TripleStoreDAO providesTripleStoreDAO() {
-        return new FileBasedTripeStoreDAO("recipe");
+        return new FileBasedTripleStoreDAO("recipe");
     }
 
     @Provides

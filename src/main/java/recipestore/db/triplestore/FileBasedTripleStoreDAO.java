@@ -22,7 +22,7 @@ import static org.apache.jena.tdb.TDBFactory.createDataset;
  * a commodity dev hardware.
  */
 @Getter
-public class FileBasedTripeStoreDAO implements TripleStoreDAO {
+public class FileBasedTripleStoreDAO implements TripleStoreDAO {
 
     private static final String BASE_LOCATION = "triple_store";
 
@@ -32,7 +32,7 @@ public class FileBasedTripeStoreDAO implements TripleStoreDAO {
     private Model model;
 
     @Inject
-    public FileBasedTripeStoreDAO(final String datasetName) {
+    public FileBasedTripleStoreDAO(final String datasetName) {
         this.datasetName = datasetName;
         createModel();
     }
