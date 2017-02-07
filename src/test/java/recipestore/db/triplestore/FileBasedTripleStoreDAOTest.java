@@ -5,16 +5,16 @@ import java.io.InputStream;
 
 import static com.google.common.io.Resources.getResource;
 
-public class FileBasedTripeStoreDAOTest extends AbstractTripleStoreDAOTest {
+public class FileBasedTripleStoreDAOTest extends AbstractTripleStoreDAOTest {
 
     private static final String TEST_FILE = "test_quads.nq";
-    private static FileBasedTripeStoreDAO tripleStoreDAO;
+    private static FileBasedTripleStoreDAO tripleStoreDAO;
 
     static {
         final InputStream recipeStream;
         try {
             recipeStream = getResource(TEST_FILE).openStream();
-            tripleStoreDAO = new FileBasedTripeStoreDAO("test");
+            tripleStoreDAO = new FileBasedTripleStoreDAO("test");
             tripleStoreDAO.populate(recipeStream);
         } catch (IOException e) {
             throw new RuntimeException("Failed initializing query ", e);

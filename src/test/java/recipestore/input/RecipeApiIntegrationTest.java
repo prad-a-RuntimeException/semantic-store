@@ -9,7 +9,7 @@ import org.apache.jena.riot.RDFFormat;
 import org.hamcrest.Matchers;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import recipestore.db.triplestore.FileBasedTripeStoreDAO;
+import recipestore.db.triplestore.FileBasedTripleStoreDAO;
 
 import java.io.InputStream;
 import java.io.StringWriter;
@@ -27,7 +27,7 @@ public class RecipeApiIntegrationTest {
     @SneakyThrows
     public static void setup() {
         final InputStream recipeStream = Resources.getResource("test_quads.nq").openStream();
-        recipeApi = new RecipeApi(new FileBasedTripeStoreDAO("int-test"), recipeStream);
+        recipeApi = new RecipeApi(new FileBasedTripleStoreDAO("int-test"), recipeStream);
         recipeApi.loadRecipe(true);
     }
 

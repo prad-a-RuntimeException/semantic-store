@@ -36,58 +36,10 @@ public class StardogTripleStoreDAO implements TripleStoreDAO {
         createModel();
     }
 
-    private void createModel() {
-
-        final AdminConnectionConfiguration connectionConfigBuilder;
-        if (!this.configuration.getConfiguration().isUseEmbedded()) {
-            connectionConfigBuilder =
-                    AdminConnectionConfiguration
-                            .toServer(this.configuration.getConfiguration().getHostName())
-                            .credentials(this.configuration.getConfiguration().getUserName(),
-                                    this.configuration.getConfiguration().getPassword());
-        } else {
-
-            connectionConfigBuilder = AdminConnectionConfiguration.toEmbeddedServer()
-                    .credentials("admin", "admin");
-        }
-        try (AdminConnection dbms = connectionConfigBuilder
-                .connect()) {
-            if (dbms.list().contains(this.datasetName)) {
-                dbms.drop(this.datasetName);
-            }
-            final ConnectionConfiguration connectionConfiguration =
-                    (this.configuration.getConfiguration().isUseEmbedded()) ? dbms.memory(this.datasetName)
-                            .create() : dbms.disk(this.datasetName).create();
-
-            this.connection = connectionConfiguration.reasoning(true).with(singleton(create("icv.reasoning.enabled"), true))
-                    .with(singleton(create("icv.reasoning.enabled"), true))
-                    .with(singleton(create("icv.enabled"), true))
-                    .with(singleton(create("versioning.enabled"), true))
-                    .connect();
-
-
-            this.model = SDJenaFactory.createModel(this.connection);
-
-        }
-
-    }
-
-
     @Override
     public void populate(InputStream datasetStream) {
-        final ConnectionConfiguration connectionConfiguration;
-        if (this.configuration.getConfiguration().isUseEmbedded()) {
-            connectionConfiguration = ConnectionConfiguration
-                    .to(this.datasetName);
-        } else {
-            connectionConfiguration = ConnectionConfiguration
-                    .to(this.datasetName)
-                    .server(this.configuration.getConfiguration().getHostName()).
-                            credentials(this.configuration.getConfiguration().getUserName(),
-                                    this.configuration.getConfiguration().getPassword());
-        }
-        try (Connection aConn = connectionConfiguration
-                .connect()) {
+        final ConnectionConfiguration connectionConfiguration = getConnectionConfiguration();
+        try (Connection aConn = connectionConfiguration.connect()) {
 
             aConn.begin();
 
@@ -95,21 +47,17 @@ public class StardogTripleStoreDAO implements TripleStoreDAO {
                     .format(RDFFormat.NQUADS)
                     .stream(datasetStream);
 
-
             this.model = SDJenaFactory.createModel(this.connection);
-
 
             this.model.listStatements()
                     .forEachRemaining(stmt -> {
                         System.out.println(stmt);
                     });
 
-
             aConn.commit();
         }
 
     }
-
 
     @Override
     public void saveAndClose() {
@@ -127,5 +75,64 @@ public class StardogTripleStoreDAO implements TripleStoreDAO {
             connection.admin().drop(this.datasetName);
             connection.close();
         }
+    }
+
+    private void createModel() {
+        try (AdminConnection dbms = getAdminConnectionConfiguration().connect()) {
+
+            dropDbIfAlreadyExists(dbms);
+
+            this.connection = getConnectionConfigurationFromAdminConnection(dbms).reasoning(true)
+                    .with(singleton(create("icv.reasoning.enabled"), true))
+                    .with(singleton(create("icv.enabled"), true))
+                    .with(singleton(create("versioning.enabled"), true))
+                    .connect();
+
+            this.model = SDJenaFactory.createModel(this.connection);
+        }
+    }
+
+
+    private ConnectionConfiguration getConnectionConfigurationFromAdminConnection(AdminConnection dbms) {
+        return this.configuration.getConfiguration().isUseEmbedded() ? dbms.memory(this.datasetName)
+                .create() : dbms.disk(this.datasetName).create();
+    }
+
+    private void dropDbIfAlreadyExists(AdminConnection dbms) {
+        if (dbms.list().contains(this.datasetName)) {
+            dbms.drop(this.datasetName);
+        }
+    }
+
+
+    private AdminConnectionConfiguration getAdminConnectionConfiguration() {
+        final AdminConnectionConfiguration connectionConfigBuilder;
+        if (!this.configuration.getConfiguration().isUseEmbedded()) {
+            connectionConfigBuilder =
+                    AdminConnectionConfiguration
+                            .toServer(this.configuration.getConfiguration().getHostName())
+                            .credentials(this.configuration.getConfiguration().getUserName(),
+                                    this.configuration.getConfiguration().getPassword());
+        } else {
+
+            connectionConfigBuilder = AdminConnectionConfiguration.toEmbeddedServer()
+                    .credentials("admin", "admin");
+        }
+        return connectionConfigBuilder;
+    }
+
+    private ConnectionConfiguration getConnectionConfiguration() {
+        final ConnectionConfiguration connectionConfiguration;
+        if (this.configuration.getConfiguration().isUseEmbedded()) {
+            connectionConfiguration = ConnectionConfiguration
+                    .to(this.datasetName);
+        } else {
+            connectionConfiguration = ConnectionConfiguration
+                    .to(this.datasetName)
+                    .server(this.configuration.getConfiguration().getHostName()).
+                            credentials(this.configuration.getConfiguration().getUserName(),
+                                    this.configuration.getConfiguration().getPassword());
+        }
+        return connectionConfiguration;
     }
 }
