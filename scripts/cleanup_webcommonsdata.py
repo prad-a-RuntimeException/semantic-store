@@ -1,8 +1,9 @@
 import argparse
-import os
 import re
 import string
-from multiprocessing import Pool
+import sys
+from pyformance.registry import MetricsRegistry
+from pyformance.reporters import ConsoleReporter
 from urllib import quote_plus
 
 '''
@@ -19,6 +20,10 @@ parser.add_argument('output', metavar='N', type=str,
 
 quad_stop_words = '\n'
 quoted_string_stop_words = '\\\"\n'
+reg = MetricsRegistry()
+console = ConsoleReporter(reg, 10, sys.stdout)
+console.start()
+meter = reg.meter("QuadCleanerTimer")
 
 
 def evaluate_token(token):
@@ -37,7 +42,11 @@ def evaluate_token(token):
     return token
 
 
-def process_line(line):
+def process_line(line, out_buffer):
+    # exit signal
+    if line == None:
+        return
+
     line = remove_stopwords(line, quad_stop_words)
     try:
         line = line.decode('unicode_escape').encode('ascii', 'ignore')
@@ -49,42 +58,32 @@ def process_line(line):
 
     tokens = []
     for element in elements:
-        quoted_text = re.findall("\".*\"", element, re.MULTILINE)
+        quoted_text = re.findall("\".*\"", element, re.DOTALL)
         if len(quoted_text):
             for quotedText in quoted_text:
                 if re.findall("window|document|script|eval", quotedText.lower()):
                     return None
-                tokens.append("\"{}\"".format(element.translate(string.maketrans("", "", ), quoted_string_stop_words)
-                                              .strip()))
+                tokens.append(
+                    "\"{}\"".format(element.translate(string.maketrans("", "", ), quoted_string_stop_words)
+                                    .strip()))
         else:
             tokens.append(element)
+
     if len(tokens) is 5:
-        return ' '.join(tokens) + '\n'
-    return None
+        meter.mark()
+        out_buffer.write(' '.join(tokens) + '\n')
 
 
 def remove_stopwords(element, stop_words):
     return element.translate(string.maketrans("", "", ), stop_words).strip()
 
 
-def handle_file(artifact):
-    print("Running mapping {} to output {} ".format(artifact[0], artifact[1]))
-    output = open(artifact[1], 'w')
-    with open(artifact[0], "r") as input_file:
-        for line in input_file:
-            try:
-                processed_line = process_line(line)
-                if processed_line is not None:
-                    output.write(processed_line)
-            except:
-                pass
+def submit_process(input_file, ouput_file):
+    output_file = open(ouput_file, 'w', buffering=100000)
+    with open(input_file) as f:
+        for line in f:
+            process_line(line, output_file)
 
 
 if __name__ == "__main__":
-    quad_files = ["{}{}".format("../data/", quad_file) for quad_file in os.listdir('../data') if
-                  (quad_file.startswith("recipe.part"))]
-    num_files = 2
-    processes = Pool(num_files)
-    output_files = ["{}{}_{}{}".format("../data/", "output", range, ".nq") for range in range(1, num_files)]
-    file_artifacts = [[i, o] for i, o in zip(quad_files, output_files)]
-    processes.map(handle_file, file_artifacts)
+    submit_process('../data/Schema_Recipe.nq', '../data/output.nq')
