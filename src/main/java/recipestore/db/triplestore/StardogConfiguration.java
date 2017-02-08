@@ -17,7 +17,6 @@ public class StardogConfiguration {
     public static final Logger LOGGER = LoggerFactory.getLogger(StardogConfiguration.class);
 
     public static final String TRIPLESTORE_PROPERTIES = "triplestore";
-    private final ResourceBundle bundle;
     @Getter
     private final Configuration configuration;
 
@@ -51,15 +50,15 @@ public class StardogConfiguration {
     }
 
     public StardogConfiguration(ResourceBundle inputBundle) {
-        this.bundle = MoreObjects.firstNonNull(inputBundle, ResourceBundle.getBundle(TRIPLESTORE_PROPERTIES));
-        if (this.bundle.containsKey("useEmbedded") && Boolean.valueOf(this.bundle.getString("useEmbedded"))) {
+        ResourceBundle bundle = MoreObjects.firstNonNull(inputBundle, ResourceBundle.getBundle(TRIPLESTORE_PROPERTIES));
+        if (bundle.containsKey("useEmbedded") && Boolean.valueOf(bundle.getString("useEmbedded"))) {
 
             LOGGER.warn("Using embedded triplestore. Only use this for testing and development");
             this.configuration = new Configuration(true);
             final boolean extraneousConfiguration =
                     newArrayList("stardog-url", "stardog-username", "stardog-password")
                             .stream()
-                            .anyMatch(this.bundle::containsKey);
+                            .anyMatch(bundle::containsKey);
 
             if (extraneousConfiguration) {
                 LOGGER.warn("Stardog configurations are ignored when setting useEmbedded to be true ");
@@ -70,13 +69,13 @@ public class StardogConfiguration {
             final boolean necessaryConfiguration =
                     newArrayList("stardog-url", "stardog-username", "stardog-password")
                             .stream()
-                            .allMatch(this.bundle::containsKey);
+                            .allMatch(bundle::containsKey);
             if (!necessaryConfiguration) {
                 throw new IllegalArgumentException("Stardog credentials needs to be provided or UseEmbedded should be set to true");
             }
-            this.configuration = new Configuration(this.bundle.getString("stardog-url"),
-                    this.bundle.getString("stardog-username"),
-                    this.bundle.getString("stardog-password"));
+            this.configuration = new Configuration(bundle.getString("stardog-url"),
+                    bundle.getString("stardog-username"),
+                    bundle.getString("stardog-password"));
         }
     }
 

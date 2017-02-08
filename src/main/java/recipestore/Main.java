@@ -23,7 +23,7 @@ class Main {
 
     public static void main(String[] args) {
         if (args.length == 0) {
-            throw new RuntimeException(String.format("Command argument is mandatory and should be one of {} ",
+            throw new RuntimeException(String.format("Command argument is mandatory and should be one of %s ",
                     Joiner.on(",").join(Command.values())));
         }
         final Command command;
@@ -39,7 +39,7 @@ class Main {
                     break;
             }
         } catch (IllegalArgumentException e) {
-            throw new RuntimeException(String.format("Command argument is not valid and should be one of {} ",
+            throw new RuntimeException(String.format("Command argument is not valid and should be one of %s ",
                     Joiner.on(",").join(Command.values())));
         }
 
@@ -71,6 +71,7 @@ class Main {
                     try {
                         recipeReaderCounter.inc();
                     } catch (Exception e) {
+                        LOGGER.warn("Failed reading recipe data", e);
                     }
                 });
     }

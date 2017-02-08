@@ -2,14 +2,11 @@ package recipestore.input;
 
 
 import org.apache.jena.rdf.model.Resource;
-import org.slf4j.Logger;
 import recipestore.db.triplestore.TripleStoreDAO;
 
 import javax.inject.Inject;
 import java.io.InputStream;
 import java.util.stream.Stream;
-
-import static org.slf4j.LoggerFactory.getLogger;
 
 public class RecipeApi {
 

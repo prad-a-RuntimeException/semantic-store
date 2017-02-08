@@ -88,7 +88,7 @@ public class LenientNquadParser extends LangNTuple<Quad> {
 
         // Process graph node first, before S,P,O
         // to set bnode label scope (if not global)
-        Node c = null;
+        Node c;
 
         if (xToken.getType() != TokenType.DOT) {
             // Allow bNodes for graph names.

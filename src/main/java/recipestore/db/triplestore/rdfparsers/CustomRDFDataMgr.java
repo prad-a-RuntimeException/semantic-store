@@ -82,7 +82,7 @@ public class CustomRDFDataMgr extends RDFDataMgr {
         @Override
         public void read(InputStream in, String baseURI, ContentType ct, StreamRDF output, Context context) {
             @SuppressWarnings("deprecation")
-            LangRIOT parser = createParser(in, null, baseURI, output);
+            LangRIOT parser = createParser(in, output);
             parser.parse();
         }
 
@@ -90,7 +90,7 @@ public class CustomRDFDataMgr extends RDFDataMgr {
         @Override
         public void read(Reader in, String baseURI, ContentType ct, StreamRDF output, Context context) {
             @SuppressWarnings("deprecation")
-            LangRIOT parser = createParser(new ReaderInputStream(in), lang, baseURI, output);
+            LangRIOT parser = createParser(new ReaderInputStream(in), output);
             parser.getProfile().setHandler(errorHandler);
             parser.parse();
         }
@@ -125,7 +125,7 @@ public class CustomRDFDataMgr extends RDFDataMgr {
      * @param lang Syntax for the stream.
      */
     public static void parse(StreamRDF sink, InputStream in, Lang lang) {
-        process(sink, new TypedInputStream(in), null, lang, (Context) null);
+        process(sink, new TypedInputStream(in), null, lang, null);
     }
 
     private static ReaderRIOT getReader(ContentType ct) {
@@ -139,13 +139,11 @@ public class CustomRDFDataMgr extends RDFDataMgr {
     }
 
 
-    @Deprecated
-    public static LangRIOT createParser(InputStream input, Lang lang, String baseIRI, StreamRDF dest) {
+    public static LangRIOT createParser(InputStream input, StreamRDF dest) {
 
         Tokenizer tokenizer = TokenizerFactory.makeTokenizerUTF8(input);
         ParserProfile profile = RiotLib.profile(RDFLanguages.NQUADS, null);
-        LenientNquadParser parser = new LenientNquadParser(tokenizer, profile, dest);
-        return parser;
+        return new LenientNquadParser(tokenizer, profile, dest);
     }
 
 

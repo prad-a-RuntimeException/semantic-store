@@ -13,6 +13,7 @@ import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.riot.other.BatchedStreamRDF;
 import org.apache.jena.riot.system.StreamRDF;
 import org.apache.jena.sparql.core.Quad;
+import org.slf4j.Logger;
 import recipestore.db.triplestore.rdfparsers.CustomRDFDataMgr;
 import recipestore.db.triplestore.rdfparsers.LenientNquadParser;
 
@@ -23,6 +24,7 @@ import java.util.stream.Stream;
 
 import static com.complexible.common.base.Option.create;
 import static com.complexible.common.base.Options.singleton;
+import static org.slf4j.LoggerFactory.getLogger;
 
 /**
  * Stardog database. Supports OWL 2 reasoning.
@@ -31,6 +33,7 @@ import static com.complexible.common.base.Options.singleton;
 public class StardogTripleStoreDAO implements TripleStoreDAO {
 
 
+    private static final Logger LOGGER = getLogger(StardogTripleStoreDAO.class);
     private final String datasetName;
     private final StardogConfiguration configuration;
     private Model model;
@@ -55,7 +58,7 @@ public class StardogTripleStoreDAO implements TripleStoreDAO {
             CustomRDFDataMgr.parse(sink, datasetStream, LenientNquadParser.LANG);
             aConn.commit();
         } catch (Exception e) {
-
+            LOGGER.error("Failed loading data in stardog", e);
         }
 
     }

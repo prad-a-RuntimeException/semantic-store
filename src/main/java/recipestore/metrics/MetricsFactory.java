@@ -51,7 +51,6 @@ public class MetricsFactory {
         Meter meter = meters.get(meterName);
         LOGGER.info("Closing meter {} with count {}", meterName, meter.getCount());
         meters.remove(meterName);
-        meter = null;
     }
 
     public Counter initializeCounter(final String counterName) {
@@ -64,7 +63,6 @@ public class MetricsFactory {
     public void stopCounter(final String counterName) {
         Counter counter = counters.get(counterName);
         counters.remove(counterName);
-        counter = null;
     }
 
 
