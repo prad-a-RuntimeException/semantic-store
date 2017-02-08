@@ -41,6 +41,7 @@ class Main {
                 .getRecipeData();
         final Counter recipeReaderCounter = MetricsFactory.getMetricFactory().initializeCounter("RecipeReaderCounter");
         recipeData
+                .peek(resource -> System.out.println(resource))
                 .forEach(resource -> {
                     try {
                         recipeReaderCounter.inc();

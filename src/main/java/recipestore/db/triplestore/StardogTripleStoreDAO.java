@@ -9,10 +9,17 @@ import lombok.Getter;
 import lombok.SneakyThrows;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.rdf.model.Model;
-import org.openrdf.rio.RDFFormat;
+import org.apache.jena.rdf.model.Resource;
+import org.apache.jena.riot.other.BatchedStreamRDF;
+import org.apache.jena.riot.system.StreamRDF;
+import org.apache.jena.sparql.core.Quad;
+import recipestore.db.triplestore.rdfparsers.CustomRDFDataMgr;
+import recipestore.db.triplestore.rdfparsers.LenientNquadParser;
 
 import javax.inject.Inject;
 import java.io.InputStream;
+import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 import static com.complexible.common.base.Option.create;
 import static com.complexible.common.base.Options.singleton;
@@ -26,9 +33,9 @@ public class StardogTripleStoreDAO implements TripleStoreDAO {
 
     private final String datasetName;
     private final StardogConfiguration configuration;
-    @Getter
     private Model model;
     private Connection connection;
+    private Dataset dataset;
 
     @Inject
     public StardogTripleStoreDAO(final String datasetName, final StardogConfiguration configuration) {
@@ -41,23 +48,21 @@ public class StardogTripleStoreDAO implements TripleStoreDAO {
     public void populate(InputStream datasetStream) {
         final ConnectionConfiguration connectionConfiguration = getConnectionConfiguration();
         try (Connection aConn = connectionConfiguration.connect()) {
-
             aConn.begin();
-
-            aConn.add().io()
-                    .format(RDFFormat.NQUADS)
-                    .stream(datasetStream);
-
-            this.model = SDJenaFactory.createModel(this.connection);
-
-            this.model.listStatements()
-                    .forEachRemaining(stmt -> {
-                        System.out.println(stmt);
-                    });
-
+            final Model model = SDJenaFactory.createModel(aConn);
+            Consumer<Quad> quadConsumer = (quad) -> model.add(model.asStatement(quad.asTriple()));
+            StreamRDF sink = new BatchedStreamRDF(JenaStreamBatchHandler.createStreamBatchHandler(quadConsumer));
+            CustomRDFDataMgr.parse(sink, datasetStream, LenientNquadParser.LANG);
             aConn.commit();
+        } catch (Exception e) {
+
         }
 
+    }
+
+    @Override
+    public Stream<Resource> getRecipeResource() {
+        return null;
     }
 
     @Override
@@ -76,11 +81,6 @@ public class StardogTripleStoreDAO implements TripleStoreDAO {
             connection.admin().drop(this.datasetName);
             connection.close();
         }
-    }
-
-    @Override
-    public Dataset getDataset() {
-        return null;
     }
 
     private void createModel() {
@@ -120,7 +120,6 @@ public class StardogTripleStoreDAO implements TripleStoreDAO {
                             .credentials(this.configuration.getConfiguration().getUserName(),
                                     this.configuration.getConfiguration().getPassword());
         } else {
-
             connectionConfigBuilder = AdminConnectionConfiguration.toEmbeddedServer()
                     .credentials("admin", "admin");
         }

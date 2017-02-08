@@ -18,6 +18,11 @@ public class InputModule {
 
 
     @Provides
+    public static String providesDatasetName() {
+        return "recipe";
+    }
+
+    @Provides
     public static TripleStoreDAO providesTripleStoreDAO() {
         return new FileBasedTripleStoreDAO("recipe");
     }

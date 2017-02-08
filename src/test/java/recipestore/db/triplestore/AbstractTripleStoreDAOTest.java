@@ -21,6 +21,7 @@ public abstract class AbstractTripleStoreDAOTest {
 
         assertThat("Model should be present ", getTripleStoreDAO().getModel(), Matchers.notNullValue());
 
+
         final List<Statement> statements = Seq.seq(getTripleStoreDAO().getModel().listStatements()).toList();
         assertThat("Should have statements in triplestore", statements.size() > 0, Matchers.equalTo(true));
 
@@ -28,8 +29,7 @@ public abstract class AbstractTripleStoreDAOTest {
                 .filter(stmt -> stmt.getObject().asResource().getURI() != null)
                 .filter(stmt -> stmt.getObject().asResource().getURI().endsWith("Recipe")).collect(Collectors.toList());
 
-        assertThat("Should get all the recipe statements ", recipeStatements.size(), Matchers.equalTo(340));
-
+        assertThat("Should get all the recipe statements ", recipeStatements.size(), Matchers.equalTo(63));
 
     }
 
