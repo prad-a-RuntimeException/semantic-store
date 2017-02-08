@@ -7,7 +7,6 @@ import org.graphframes.GraphFrame
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{FunSuite, Matchers}
-import recipestore.input.RecipePredicates.filterByUrl
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable
@@ -19,7 +18,6 @@ class PropertyGraphFactory$Test extends FunSuite with Matchers {
   test("Should create PropertyGraph(Spark GraphFrames) from Semantic resource") {
     val recipeModel = ModelFactory.createDefaultModel.read(Resources.getResource("sample_recipe.rdf").openStream, "http://schema.org/Recipe")
     val sampleRecipeUnderTest: mutable.Seq[Resource] = recipeModel.listStatements.toList.asScala.map(stmt => stmt.getSubject)
-      .filter(resource => filterByUrl.test(resource, "allrecipes"))
     sampleRecipeUnderTest.size should be > 0
     val graph: GraphFrame = PropertyGraphFactory.createGraph(sampleRecipeUnderTest.head)
 

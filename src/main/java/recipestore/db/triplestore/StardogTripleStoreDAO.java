@@ -7,6 +7,7 @@ import com.complexible.stardog.api.admin.AdminConnectionConfiguration;
 import com.complexible.stardog.jena.SDJenaFactory;
 import lombok.Getter;
 import lombok.SneakyThrows;
+import org.apache.jena.query.Dataset;
 import org.apache.jena.rdf.model.Model;
 import org.openrdf.rio.RDFFormat;
 
@@ -75,6 +76,11 @@ public class StardogTripleStoreDAO implements TripleStoreDAO {
             connection.admin().drop(this.datasetName);
             connection.close();
         }
+    }
+
+    @Override
+    public Dataset getDataset() {
+        return null;
     }
 
     private void createModel() {

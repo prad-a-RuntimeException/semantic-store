@@ -14,7 +14,7 @@ import java.nio.file.StandardOpenOption;
 @Module
 public class InputModule {
 
-    private static final String DATASET_FILE_LOC = "data/schema_recipe.nq";
+    private static final String DATASET_FILE_LOC = "data/output.nq";
 
 
     @Provides

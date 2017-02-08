@@ -86,6 +86,7 @@ dependencies {
     compile group: 'commons-io', name: 'commons-io', version: '2.4'
     compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.6.6'
     compile group: 'com.fasterxml.jackson.module', name: 'jackson-module-scala_2.11', version: '2.6.6'
+    compile group: 'io.dropwizard.metrics', name: 'metrics-core', version: '3.1.0'
     apt "com.google.dagger:dagger-compiler:2.5"
     apt "org.projectlombok:lombok:1.16.10"
     compile group: 'com.google.dagger', name: 'dagger', version: '2.5'

@@ -1,5 +1,6 @@
 package recipestore.db.triplestore;
 
+import org.apache.jena.query.Dataset;
 import org.apache.jena.rdf.model.Model;
 
 import java.io.InputStream;
@@ -12,4 +13,6 @@ public interface TripleStoreDAO {
     void delete(boolean clearFileSystem);
 
     Model getModel();
+
+    Dataset getDataset();
 }

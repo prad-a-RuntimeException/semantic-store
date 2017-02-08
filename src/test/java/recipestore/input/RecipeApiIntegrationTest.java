@@ -34,7 +34,7 @@ public class RecipeApiIntegrationTest {
     @Test
     public void shouldGetRecipeDataFromTheTripleStore() {
 
-        final List<Resource> recipeData = recipeApi.getRecipeData(resource -> RecipePredicates.filterByUrl.test(resource, "allrecipes")).collect(Collectors.toList());
+        final List<Resource> recipeData = recipeApi.getRecipeData().collect(Collectors.toList());
 
 
         final Model singleRecipeModel = createDefaultModel().add(recipeData.get(0).listProperties().toList());
