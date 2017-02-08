@@ -1,6 +1,6 @@
 package recipestore.db.triplestore;
 
-import com.clearspring.analytics.util.Lists;
+import com.google.common.collect.Lists;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import org.apache.commons.io.FileUtils;

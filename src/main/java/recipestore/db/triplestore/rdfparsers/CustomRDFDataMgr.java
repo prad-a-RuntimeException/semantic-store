@@ -18,7 +18,7 @@
 
 package recipestore.db.triplestore.rdfparsers;
 
-import edu.stanford.nlp.io.ReaderInputStream;
+import org.apache.commons.io.input.ReaderInputStream;
 import org.apache.jena.atlas.web.ContentType;
 import org.apache.jena.atlas.web.TypedInputStream;
 import org.apache.jena.riot.*;

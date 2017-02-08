@@ -1,6 +1,7 @@
 package recipestore;
 
 import com.codahale.metrics.Counter;
+import com.google.common.base.Joiner;
 import dagger.Component;
 import org.apache.jena.rdf.model.Resource;
 import org.slf4j.Logger;
@@ -16,8 +17,32 @@ class Main {
 
     public static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
 
+    public enum Command {
+        LoadRecipeData, ReadRecipeData
+    }
+
     public static void main(String[] args) {
-        recipeDataReader();
+        if (args.length == 0) {
+            throw new RuntimeException(String.format("Command argument is mandatory and should be one of {} ",
+                    Joiner.on(",").join(Command.values())));
+        }
+        final Command command;
+        try {
+            final String commandString = args[0];
+            command = Command.valueOf(commandString);
+            switch (command) {
+                case LoadRecipeData:
+                    loadRecipeData();
+                    break;
+                case ReadRecipeData:
+                    readRecipeData();
+                    break;
+            }
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException(String.format("Command argument is not valid and should be one of {} ",
+                    Joiner.on(",").join(Command.values())));
+        }
+
     }
 
     @Component(modules = InputModule.class)
@@ -25,14 +50,14 @@ class Main {
         RecipeApi getRecipeLoader();
     }
 
-    public static void recipeDataLoader() {
+    public static void loadRecipeData() {
         final recipestore.input.InputComponent inputComponent = DaggerInputComponent.builder()
                 .build();
 
         inputComponent.getRecipeLoader().loadRecipe(true);
     }
 
-    public static void recipeDataReader() {
+    public static void readRecipeData() {
         final recipestore.input.InputComponent inputComponent = DaggerInputComponent.builder()
                 .build();
 
