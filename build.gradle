@@ -33,9 +33,9 @@ jacocoTestReport {
 
 test {
     // set heap size for the test JVM(s)
-    minHeapSize = "1g"
-    maxHeapSize = "2g"
-    maxParallelForks = 10
+    minHeapSize = "512m"
+    maxHeapSize = "1g"
+    maxParallelForks = 4
 }
 
 
