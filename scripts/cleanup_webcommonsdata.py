@@ -42,7 +42,7 @@ def evaluate_token(token):
     return token
 
 
-def process_line(line, out_buffer):
+def process_line(line):
     # exit signal
     if line == None:
         return
@@ -71,18 +71,19 @@ def process_line(line, out_buffer):
 
     if len(tokens) is 5:
         meter.mark()
-        out_buffer.write(' '.join(tokens) + '\n')
+        return ' '.join(tokens) + '\n'
+    return None
 
 
 def remove_stopwords(element, stop_words):
     return element.translate(string.maketrans("", "", ), stop_words).strip()
 
 
-def submit_process(input_file, ouput_file):
-    output_file = open(ouput_file, 'w', buffering=100000)
+def submit_process(input_file, output_file_name):
+    output_file = open(output_file_name, 'w', buffering=100000)
     with open(input_file) as f:
-        for line in f:
-            process_line(line, output_file)
+        for line in (process_line(line) for line in f):
+            output_file.write(line)
 
 
 if __name__ == "__main__":
