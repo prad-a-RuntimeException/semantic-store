@@ -1,15 +1,10 @@
 package recipestore;
 
-import com.codahale.metrics.Counter;
 import com.google.common.base.Joiner;
-import dagger.Component;
 import org.apache.jena.rdf.model.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import recipestore.input.DaggerInputComponent;
-import recipestore.input.InputModule;
-import recipestore.input.RecipeApi;
-import recipestore.metrics.MetricsFactory;
 
 import java.util.stream.Stream;
 
@@ -45,16 +40,11 @@ class Main {
 
     }
 
-    @Component(modules = InputModule.class)
-    public interface InputComponent {
-        RecipeApi getRecipeLoader();
-    }
-
     public static void loadRecipeData() {
         final recipestore.input.InputComponent inputComponent = DaggerInputComponent.builder()
                 .build();
 
-        inputComponent.getRecipeLoader().loadRecipe(true);
+        inputComponent.getRecipeApi().loadRecipe(true);
     }
 
     public static void readRecipeData() {
@@ -62,18 +52,9 @@ class Main {
                 .build();
 
 
-        final Stream<Resource> recipeData = inputComponent.getRecipeLoader()
+        final Stream<Resource> recipeData = inputComponent.getRecipeApi()
                 .getRecipeData();
-        final Counter recipeReaderCounter = MetricsFactory.getMetricFactory().initializeCounter("RecipeReaderCounter");
-        recipeData
-                .peek(resource -> System.out.println(resource))
-                .forEach(resource -> {
-                    try {
-                        recipeReaderCounter.inc();
-                    } catch (Exception e) {
-                        LOGGER.warn("Failed reading recipe data", e);
-                    }
-                });
+
     }
 
 

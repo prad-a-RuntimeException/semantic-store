@@ -8,9 +8,10 @@ import org.junit.After;
 import org.junit.Test;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
+import static java.util.stream.Collectors.toList;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.greaterThan;
 
 public abstract class AbstractTripleStoreDAOTest {
 
@@ -27,9 +28,9 @@ public abstract class AbstractTripleStoreDAOTest {
 
         final List<Statement> recipeStatements = statements.stream().filter(stmt -> stmt.getObject().canAs(Resource.class))
                 .filter(stmt -> stmt.getObject().asResource().getURI() != null)
-                .filter(stmt -> stmt.getObject().asResource().getURI().endsWith("Recipe")).collect(Collectors.toList());
+                .filter(stmt -> stmt.getObject().asResource().getURI().endsWith("Recipe")).collect(toList());
 
-        assertThat("Should get all the recipe statements ", recipeStatements.size(), Matchers.equalTo(63));
+        assertThat("Should get all the recipe statements ", recipeStatements.size(), greaterThan(63));
 
     }
 
