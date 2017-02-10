@@ -1,24 +1,81 @@
 package recipestore.graph
 
-import org.apache.jena.rdf.model.{Literal, Property, RDFNode, Resource, Statement}
+import com.codahale.metrics.Meter
+import com.twitter.storehaus.cache.MapCache.empty
+import com.twitter.storehaus.cache._
+import org.apache.jena.rdf.model.Resource
 import org.apache.spark.sql._
-import org.apache.spark.sql.types.{StructField, StructType}
+import org.apache.spark.sql.functions._
+import org.apache.spark.sql.types.{StringType, StructField, StructType}
 import org.graphframes.GraphFrame
-import recipestore.graph.DataTypeHelper.inferField
+import org.slf4j.{Logger, LoggerFactory}
+import recipestore.graph.DataTypeHelper.{getValue, inferField}
+import recipestore.graph.GraphVisitor.{Edge, Vertex}
+import recipestore.metrics.MetricsFactory
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
+import scala.collection.immutable.{Iterable, Seq}
+import scala.collection.mutable
+
 
 object PropertyGraphFactory {
 
+
+  val LOGGER: Logger = LoggerFactory.getLogger(PropertyGraphFactory.getClass)
+
+  private val vertexCache: MutableCache[Resource, (mutable.Iterable[VertexValue], mutable.Iterable[Row])] =
+    empty[Resource, (mutable.Iterable[VertexValue], mutable.Iterable[Row])].toMutable()
+
+  val memoizedCreateVertexFunction = Memoize(vertexCache)(createVertices)
+  private val schemaCache: MutableCache[String, StructType] =
+    empty[String, StructType].toMutable()
+  private val meter: Meter = MetricsFactory.getMetricFactory.initializeMeter("GraphCreator")
   val sparkSession: SparkSession = SparkSession.builder()
     .appName("GraphFactory")
     .master("local")
     .getOrCreate()
-  val sQLContext: SQLContext = sparkSession.sqlContext
+  val sqlContext: SQLContext = sparkSession.sqlContext
+
+  val edgeSchema: StructType = StructType(Array("src", "dst", "relationship")
+    .map(edgeVal => StructField.apply(edgeVal, StringType)))
+
+  def vertexAggregator(vertex1: DataFrame, vertex2: DataFrame) = {
+    mergeColumns(vertex1, vertex2)
+  }
+
+
+  def createGraph(resources: Stream[Resource]): GraphFrame = {
+
+    val verticesAndEdges: Seq[(mutable.Iterable[VertexValue], mutable.Iterable[Row])] =
+      resources.map(resource => memoizedCreateVertexFunction(resource))
+
+    MetricsFactory.getMetricFactory.stopMeter("GraphCreator")
+
+    val verticesDF: DataFrame = verticesAndEdges
+      .flatMap(_._1)
+      .groupBy(_.schema)
+      .map(rowsForSchema => {
+        try {
+          sqlContext.createDataFrame(rowsForSchema._2.map(_.row).toList.asJava, rowsForSchema._1)
+        } catch {
+          case e: Throwable => LOGGER.error("Failed to create dataframe ", e)
+            return null;
+        }
+      })
+      .filter(_ != null)
+      .reduce((mem, curr) => mergeColumns(mem, curr))
+
+    val edgesDF: Seq[Row] = verticesAndEdges
+      .flatMap(_._2)
+
+
+    GraphFrame(verticesDF, sqlContext.createDataFrame(edgesDF.toList.asJava, edgeSchema))
+  }
 
   def createGraph(resource: Resource): GraphFrame = {
-    val dataFrames: (DataFrame, DataFrame) = createVertices(resource)
-    GraphFrame(dataFrames._1, dataFrames._2)
+    val dataFrames: (mutable.Iterable[VertexValue], mutable.Iterable[Row]) = memoizedCreateVertexFunction(resource)
+    //    GraphFrame(dataFrames._1, dataFrames._2)
+    null
   }
 
   def getResourceID(resource: Resource): String = {
@@ -29,89 +86,73 @@ object PropertyGraphFactory {
 
   }
 
-
-  def createVertices(resource: Resource): (DataFrame, DataFrame) = {
-
-    val propertyList = resource.listProperties().toList
-    if (propertyList.isEmpty) {
-      return null
-    }
-    val propertiesAndEdges: (Stream[Statement], Stream[Statement]) = propertyList.toStream
-      .partition(stmt => stmt.getObject.canAs(classOf[Literal]))
-
-    val properties: Seq[(String, AnyRef)] = extractProperties(resource, propertiesAndEdges)
-    val structFields: Seq[StructField] = properties.map(property => StructField(property._1, inferField(property._2), true))
-    val schema = StructType(structFields)
-
-    val edges = propertiesAndEdges._2
-      .map(stmt => (resource, stmt.getPredicate.getLocalName, stmt.getObject.asResource()))
-
-    val children: Stream[(DataFrame, DataFrame)] = edges.map(stmt => stmt._3)
-      .map(createVertices)
-      .filter(obj => obj != null)
-
-    val edgeDataFrames: DataFrame = if (children != null && children.nonEmpty)
-      children.map(dataFrames => dataFrames._2)
-        .reduce((curr, mem) => curr.union(mem))
-        .union(
-          sQLContext.createDataFrame(edges.map(stmt => (getResourceID(stmt._1), getResourceID(stmt._3), stmt._2))
-            .toList).toDF("src", "dst", "relationship"))
-    else
-      sQLContext.createDataFrame(edges.map(stmt => (getResourceID(stmt._1), getResourceID(stmt._3), stmt._2))
-        .toList).toDF("src", "dst", "relationship")
-
-
-    val propertyValues: Seq[Any] = properties.map(property => DataTypeHelper.getValue(schema.fields.apply(schema.fieldIndex(property._1)), property._2))
-    val vertexDataSet: DataFrame = sQLContext.createDataFrame(List(Row.fromSeq(propertyValues)), schema)
-
-    val vertexDataFrames: DataFrame = if (children != null && children.nonEmpty)
-      children.map(dataFrames => dataFrames._1)
-        .reduce((curr, mem) => curr.union(mem))
-        .union(
-          vertexDataSet)
-    else
-      vertexDataSet
-
-    (vertexDataFrames, edgeDataFrames)
+  class VertexValue(val schema: StructType, val row: Row) {
 
   }
 
 
-  private def extractProperties(resource: Resource, propertiesAndEdges: (Stream[Statement], Stream[Statement])) = {
+  def createVertices(resource: Resource): (mutable.Iterable[VertexValue], mutable.Iterable[Row]) = {
+    meter.mark()
 
-    def getPropertyValues(property: Property) = {
-      val propertyValues = resource.listProperties(property).toStream.
-        flatMap(stmt => Seq(stmt.getObject.asLiteral().getValue))
-        .filter(value => value != null)
-      if (propertyValues.isEmpty)
+    val edgeDataFrames: mutable.ListBuffer[Row] = mutable.ListBuffer()
+    var vertexValues: mutable.ListBuffer[VertexValue] = mutable.ListBuffer()
+
+    def createVertex(vertex: Vertex) = {
+      val schema: StructType = getSchema(vertex)
+      val propertyMap: Map[String, Object] = vertex.properties.+("id" -> vertex.id)
+      val propertyValues: List[Any] = schema.map(structField => getValue(structField,
+        propertyMap.getOrElse(structField.name, null))).toList
+
+      if (propertyValues.size > 0)
+        vertexValues.+=(new VertexValue(schema, Row.fromSeq(propertyValues)))
+      else {
+        LOGGER.warn("Dataframe found with no valid property {}", propertyMap)
         null
-      else if (propertyValues.size == 1)
-        (property.getLocalName, propertyValues.head)
-      else
-        (property.getLocalName, propertyValues)
-
+      }
     }
 
-    def getResourceType(): String = {
-      val resourceTypes: Seq[RDFNode] = propertiesAndEdges._2
-        .filter(stmt => stmt.getPredicate.getLocalName.equals("type"))
-        .map(stmt => stmt.getObject)
-        .filter(obj => obj.canAs(classOf[Resource]))
-
-      if (resourceTypes.isEmpty) null else resourceTypes.head.asResource().getLocalName
-
+    def createEdge(edge: Edge) = {
+      val edgeRow: Row = Row.fromSeq(Array(edge.outVertex, edge.inVertex, edge.property)
+        .map(edgeVal => edgeVal).toSeq)
+      edgeDataFrames.+=(edgeRow)
     }
 
-    val properties: Seq[(String, AnyRef)] = List(("id", getResourceID(resource)), ("type", getResourceType()))
-      .++(
-        propertiesAndEdges._1
-          .map(stmt => stmt.getPredicate)
-          .distinct
-          .map(property =>
-            getPropertyValues(property)
-          )
-      )
-      .filter(tup => tup._1 != null || tup._2 != null)
-    properties
+    GraphVisitor.traverse(resource, createVertex, createEdge)
+
+    (vertexValues, edgeDataFrames)
+
   }
+
+  private def getSchema(vertex: Vertex): StructType = {
+    def getStructType(): StructType = {
+      val structFields: Iterable[StructField] = vertex.properties
+        .map(property => StructField(property._1, inferField(property._2), true))
+
+      StructType(structFields.toSeq.+:(StructField.apply("id", StringType, false)))
+    }
+
+    if (vertex.typeVal != null) {
+      schemaCache.getOrElseUpdate(vertex.typeVal, getStructType)
+    } else
+      getStructType
+
+  }
+
+  def mergeColumns(df1: DataFrame, df2: DataFrame): DataFrame = {
+
+    val cols1 = df1.columns.toSet
+    val cols2 = df2.columns.toSet
+    val total = cols1 ++ cols2 // union
+
+    def unionOfColumns(myCols: Set[String], allCols: Set[String]) = {
+      allCols.toList.map(x => x match {
+        case x if myCols.contains(x) => col(x)
+        case _ => lit(null).as(x)
+      })
+    }
+
+    df1.select(unionOfColumns(cols1, total): _*).union(df2.select(unionOfColumns(cols2, total): _*))
+
+  }
+
 }

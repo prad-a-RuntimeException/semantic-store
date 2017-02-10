@@ -13,6 +13,7 @@ import scala.util.control.Exception.allCatch
   * Implmentation based on Spark CSVInferschema function which is private.
   * Used to infer the schemaType dynamically from the object.
   * TODO: Does not perform merge. Should introduce sampling to handle different data type.
+  * TODO: Should handle colleciton of different types, only handles Iterable[String] right now
   */
 object DataTypeHelper {
 
@@ -31,27 +32,58 @@ object DataTypeHelper {
   }
 
   def getValue(structField: StructField, anyRef: AnyRef): Any = {
+    val number = """(^[\d.]+\d)$""".r
+    val lang = """(@\w{2})$"""
+
     if (anyRef == null) {
-      anyRef
+      return null
     }
-    else {
+    val stringVal = anyRef.toString.replaceAll(lang, "")
+
+    def getNumericValue: String = {
+      try {
+        stringVal.toDouble
+        stringVal
+      }
+      catch {
+        case _: NumberFormatException => number.findFirstIn(stringVal).getOrElse("null")
+      }
+    }
+
+    def getBooleanVal: Boolean = {
+      try {
+        stringVal.toBoolean
+      }
+      catch {
+        case _: IllegalArgumentException => if (stringVal.toLowerCase().contains("true")) true else false
+      }
+    }
+
+    try {
       structField.dataType match {
-        case _: StringType => anyRef.toString
-        case _: IntegerType => anyRef.toString.toInt
-        case _: LongType => anyRef.toString.toLong
-        case _: DecimalType => anyRef.toString.toDouble
-        case _: DoubleType => anyRef.toString.toDouble
-        case _: TimestampType => getTimeStamp(anyRef.toString)
-        case _: BooleanType => anyRef.toString.toBoolean
-        case _: ArrayType => anyRef
+        case _: StringType => stringVal
+        case _: IntegerType => getNumericValue.toString.toInt
+        case _: LongType => getNumericValue.toString.toLong
+        case _: DecimalType => getNumericValue.toString.toDouble
+        case _: DoubleType => getNumericValue.toString.toDouble
+        case _: TimestampType => getTimeStamp(stringVal)
+        case _: BooleanType => getBooleanVal
+        case _: ArrayType => anyRef match {
+          case _: Iterable[Any] => anyRef
+          case _ => List(anyRef)
+        }
         case other: DataType =>
           throw new UnsupportedOperationException(s"Unexpected data type $other")
       }
+    } catch {
+      case _: NumberFormatException => null
     }
   }
 
 
   def inferField(field: AnyRef, typeSoFar: DataType = NullType): DataType = {
+    if (field == null)
+      return null
     val strValue = field.toString
     if (field == null) {
       typeSoFar
