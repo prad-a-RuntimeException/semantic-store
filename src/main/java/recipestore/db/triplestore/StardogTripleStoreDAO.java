@@ -7,9 +7,7 @@ import com.complexible.stardog.api.admin.AdminConnectionConfiguration;
 import com.complexible.stardog.jena.SDJenaFactory;
 import lombok.Getter;
 import lombok.SneakyThrows;
-import org.apache.jena.query.Dataset;
 import org.apache.jena.rdf.model.Model;
-import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.riot.other.BatchedStreamRDF;
 import org.apache.jena.riot.system.StreamRDF;
 import org.apache.jena.sparql.core.Quad;
@@ -20,7 +18,6 @@ import recipestore.db.triplestore.rdfparsers.LenientNquadParser;
 import javax.inject.Inject;
 import java.io.InputStream;
 import java.util.function.Consumer;
-import java.util.stream.Stream;
 
 import static com.complexible.common.base.Option.create;
 import static com.complexible.common.base.Options.singleton;
@@ -38,7 +35,6 @@ public class StardogTripleStoreDAO implements TripleStoreDAO {
     private final StardogConfiguration configuration;
     private Model model;
     private Connection connection;
-    private Dataset dataset;
 
     @Inject
     public StardogTripleStoreDAO(final String datasetName, final StardogConfiguration configuration) {
@@ -63,10 +59,6 @@ public class StardogTripleStoreDAO implements TripleStoreDAO {
 
     }
 
-    @Override
-    public Stream<Resource> getRecipeResource() {
-        return null;
-    }
 
     @Override
     public void saveAndClose() {

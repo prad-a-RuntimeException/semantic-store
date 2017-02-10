@@ -1,16 +1,20 @@
 package recipestore.db.triplestore;
 
+import com.google.common.collect.ImmutableList;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.Resource;
+import org.jooq.lambda.Seq;
 
 import java.io.InputStream;
+import java.util.Iterator;
 import java.util.stream.Stream;
 
-public interface TripleStoreDAO {
-    void populate(InputStream fileInputStream);
+import static org.slf4j.LoggerFactory.getLogger;
 
-    Stream<Resource> getRecipeResource();
+public interface TripleStoreDAO {
+
+    void populate(InputStream fileInputStream);
 
     void saveAndClose();
 
@@ -18,5 +22,16 @@ public interface TripleStoreDAO {
 
     Model getModel();
 
-    Dataset getDataset();
+    default Stream<Resource> getRecipeResource() {
+        final Iterator<Resource> recipeItr = getModel()
+                .listStatements(null, null, getModel().getResource("http://schema.org/Recipe"))
+                .mapWith(stmt -> stmt.getSubject());
+        final ImmutableList.Builder<Resource> recipeListBuilder = ImmutableList.builder();
+        try {
+            recipeItr.forEachRemaining(recipeListBuilder::add);
+        } catch (Exception e) {
+            getLogger(TripleStoreDAO.class).warn("Recipe statement iterator failing {} ", e.getLocalizedMessage());
+        }
+        return Seq.seq(recipeListBuilder.build());
+    }
 }

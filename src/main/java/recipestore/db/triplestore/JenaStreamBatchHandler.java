@@ -6,6 +6,7 @@ import org.apache.jena.graph.Triple;
 import org.apache.jena.riot.other.StreamRDFBatchHandler;
 import org.apache.jena.sparql.core.Quad;
 import org.slf4j.Logger;
+import recipestore.input.RecipePredicates;
 import recipestore.metrics.MetricsFactory;
 
 import javax.inject.Inject;
@@ -49,7 +50,7 @@ public class JenaStreamBatchHandler implements StreamRDFBatchHandler {
     @Override
     public void batchQuads(Node currentGraph, Node currentSubject, List<Quad> quads) {
         final String uri = currentGraph.getURI().toLowerCase();
-        if (uri.contains("allrecipes.com") || uri.contains("allrecipes.co.uk")) {
+        if (RecipePredicates.filterByUrl.test(uri)) {
             meter.mark();
             LOGGER.trace("For graph {} and subject {}, found quads  {}", currentGraph, currentSubject,
                     quads.size());

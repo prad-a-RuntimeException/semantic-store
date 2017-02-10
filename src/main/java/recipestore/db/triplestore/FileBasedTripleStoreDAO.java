@@ -1,11 +1,11 @@
 package recipestore.db.triplestore;
 
-import com.google.common.collect.Lists;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import org.apache.commons.io.FileUtils;
 import org.apache.jena.query.Dataset;
-import org.apache.jena.rdf.model.*;
+import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.riot.other.BatchedStreamRDF;
 import org.apache.jena.riot.system.StreamRDF;
 import org.apache.jena.sparql.core.DatasetGraph;
@@ -18,13 +18,9 @@ import recipestore.db.triplestore.rdfparsers.LenientNquadParser;
 import javax.inject.Inject;
 import java.io.File;
 import java.io.InputStream;
-import java.util.Iterator;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.stream.Stream;
 
 import static java.lang.String.format;
 import static org.apache.jena.tdb.TDBFactory.createDataset;
@@ -92,53 +88,11 @@ public class FileBasedTripleStoreDAO implements TripleStoreDAO {
         }
     }
 
-    @Override
-    public Stream<Resource> getRecipeResource() {
-        final List<String> namedGraphs = getNamedGraphs();
-
-        return namedGraphs
-                .stream()
-                .map(graphName -> dataset.getNamedModel(graphName))
-                .flatMap(namedModel -> {
-                    final StmtIterator stmtItr = namedModel.listStatements(null,
-                            null,
-                            namedModel.getResource("http://schema.org/Recipe"));
-                    List<Resource> recipeResources = Lists.newArrayList();
-                    while (stmtItr.hasNext()) {
-                        try {
-                            final Statement statement = stmtItr.next();
-                            recipeResources.add(statement.getSubject().asResource());
-                        } catch (Exception e) {
-                            LOGGER.error("Failed extracting statement with exception {}", e.getMessage());
-                        }
-                    }
-
-                    return recipeResources.stream();
-                });
-    }
-
     private Predicate<RDFNode> isRecipeResource = (rdfNode) ->
             rdfNode != null &&
                     rdfNode.isResource() &&
                     rdfNode.asResource().getURI() != null &&
                     rdfNode.asResource().getURI().equals("http://schema.org/Recipe");
-
-    private List<String> getNamedGraphs() {
-        final List<String> namedGraphs
-                = Lists.newArrayList();
-        final Iterator<String> graphItr = dataset.listNames();
-        AtomicBoolean hasNext = new AtomicBoolean(graphItr.hasNext());
-        while (hasNext.get()) {
-            namedGraphs.add(graphItr.next());
-            try {
-                hasNext.set(graphItr.hasNext());
-            } catch (Exception e) {
-                LOGGER.warn("Failed getting named graph {}", e.getMessage());
-                hasNext.set(false);
-            }
-        }
-        return namedGraphs;
-    }
 
 
     @Override
