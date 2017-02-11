@@ -101,7 +101,9 @@ object PropertyGraphFactory {
 
     def createVertex(vertex: Vertex) = {
       val schema: StructType = getSchema(vertex)
-      val propertyMap: Map[String, Object] = vertex.properties.+("id" -> vertex.id)
+      val propertyMap: Map[String, Object] = vertex.properties
+        .+("id" -> vertex.id)
+        .+("type" -> vertex.typeVal)
       val propertyValues: List[Any] = schema.map(structField => getValue(structField,
         propertyMap.getOrElse(structField.name, null))).toList
 
@@ -130,7 +132,9 @@ object PropertyGraphFactory {
       val structFields: Iterable[StructField] = vertex.properties
         .map(property => StructField(property._1, inferField(property._2), true))
 
-      StructType(structFields.toSeq.+:(StructField.apply("id", StringType, false)))
+      StructType(structFields.toSeq
+        .+:(StructField.apply("id", StringType, false))
+        .+:(StructField.apply("type", StringType, true)))
     }
 
     if (vertex.typeVal != null) {

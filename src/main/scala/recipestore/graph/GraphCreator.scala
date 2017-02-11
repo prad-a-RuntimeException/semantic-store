@@ -5,7 +5,7 @@ import java.util.stream.Stream
 import org.apache.jena.rdf.model.Resource
 import org.apache.spark.sql.SaveMode
 import org.graphframes.GraphFrame
-import recipestore.input.DaggerInputComponent
+import recipestore.input.RecipeApi
 
 import scala.collection.JavaConverters._
 import scala.language.postfixOps
@@ -14,24 +14,28 @@ import scala.language.postfixOps
 /**
   * Resources to GraphFrame create.
   */
-object GraphCreator {
+class GraphCreator(val recipeApi: RecipeApi, val graphDirectory: String) {
 
-  def main(args: Array[String]): Unit = {
-    write(load())
+
+  def load(limit: Int): GraphFrame = {
+    val data: Stream[Resource] = recipeApi.getRecipeData
+    PropertyGraphFactory.createGraph(data.iterator().asScala.toStream, limit)
   }
 
-  def load(): GraphFrame = {
-    val inputComponent = DaggerInputComponent.builder.build
-    val data: Stream[Resource] = inputComponent.getRecipeApi.getRecipeData
-    PropertyGraphFactory.createGraph(data.iterator().asScala.toStream, 10)
+  def write(limit: Int): Unit = {
+
+    val graph = load(10)
+    graph.vertices.write.mode(SaveMode.Overwrite).parquet(s"$graphDirectory/vertices")
+    graph.edges.write.mode(SaveMode.Overwrite).parquet(s"$graphDirectory/edges")
   }
 
-  def write(graph: GraphFrame): GraphFrame = {
-    val graphComponent = DaggerGraphComponent.builder().build().getGraphDirectory.get()
+  def loadFromFile(): GraphFrame = {
 
-    graph.vertices.write.mode(SaveMode.Overwrite).parquet(s"$graphComponent/vertices")
-    graph.edges.write.mode(SaveMode.Overwrite).parquet(s"$graphComponent/edges")
-    graph
+    val context = PropertyGraphFactory.sparkSession.sqlContext
+
+    val vertices = context.read.parquet(s"$graphDirectory/vertices")
+    val edges = context.read.parquet(s"$graphDirectory/edges")
+    GraphFrame(vertices, edges)
   }
 
 }
