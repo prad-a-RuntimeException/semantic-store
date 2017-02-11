@@ -3,25 +3,12 @@ package recipestore.graph
 import java.util
 
 import org.apache.jena.rdf.model.{Literal, Resource, Statement}
-import recipestore.input.DaggerInputComponent
-import recipestore.metrics.MetricsFactory
 
 import scala.collection.JavaConverters._
 import scala.collection.immutable.Seq
 import scala.collection.mutable
 
 object GraphVisitor {
-
-  def load(): Unit = {
-    val inputComponent = DaggerInputComponent.builder.build
-    val data: Iterator[Resource] = inputComponent.getRecipeApi.getRecipeData.iterator().asScala
-    val traversalMeter = MetricsFactory.getMetricFactory.initializeMeter("TraversalMeter")
-    data
-      .foreach(resource => {
-        traversalMeter.mark()
-        GraphVisitor.traverse(resource, vertex => vertex, edge => edge)
-      })
-  }
 
   class Vertex(val id: String, val typeVal: String, val properties: Map[String, Object]) {
 

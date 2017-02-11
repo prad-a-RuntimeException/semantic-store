@@ -35,7 +35,7 @@ class GraphCreator$Test extends FunSuite with BeforeAndAfter {
           object matcher extends Matchers {
             def checkVal(row: Row) = {
               val schemaField: Seq[String] = row.schema.fields.map(_.name).toList
-              schemaField should contain allOf("ratingValue", "author", "name", "description", "mainEntityOfPage", "recipeInstructions", "id", "ingredients", "type", "reviewCount", "recipeYield")
+              schemaField should contain allOf("ratingValue", "author", "name", "description", "mainEntityOfPage", "recipeInstructions", "id", "ingredients", "type", "reviewCount")
             }
           }
           matcher.checkVal(row)

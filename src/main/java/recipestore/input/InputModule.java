@@ -2,6 +2,7 @@ package recipestore.input;
 
 import dagger.Module;
 import dagger.Provides;
+import recipestore.ResourceLoader;
 import recipestore.db.triplestore.FileBasedTripleStoreDAO;
 import recipestore.db.triplestore.TripleStoreDAO;
 
@@ -11,10 +12,13 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 
+import static recipestore.ResourceLoader.Resource.triplestore;
+
 @Module
 public class InputModule {
 
-    private static final String DATASET_FILE_LOC = "data/output.nq";
+    private static final String DATASET_FILE_LOC = ResourceLoader.get.apply(triplestore,
+            "input-file").orElse(null);
 
 
     @Provides
@@ -24,7 +28,7 @@ public class InputModule {
 
     @Provides
     public static TripleStoreDAO providesTripleStoreDAO() {
-        return new FileBasedTripleStoreDAO("recipe");
+        return new FileBasedTripleStoreDAO(providesDatasetName());
     }
 
     @Provides
