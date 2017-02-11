@@ -76,8 +76,18 @@ object PropertyGraphFactory {
 
   def createGraph(resource: Resource): GraphFrame = {
     val dataFrames: (mutable.Iterable[VertexValue], mutable.Iterable[Row]) = memoizedCreateVertexFunction(resource)
-    //    GraphFrame(dataFrames._1, dataFrames._2)
-    null
+    GraphFrame(dataFrames._1
+      .groupBy(_.schema)
+      .map(rowsForSchema => {
+        try {
+          sqlContext.createDataFrame(rowsForSchema._2.map(_.row).toList.asJava, rowsForSchema._1)
+        } catch {
+          case e: Throwable => LOGGER.error("Failed to create dataframe ", e)
+            return null;
+        }
+      })
+      .filter(_ != null)
+      .reduce((mem, curr) => mergeColumns(mem, curr)), sqlContext.createDataFrame(dataFrames._2.toList.asJava, edgeSchema))
   }
 
   def getResourceID(resource: Resource): String = {

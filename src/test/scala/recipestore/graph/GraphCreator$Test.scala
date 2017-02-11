@@ -2,11 +2,14 @@ package recipestore.graph
 
 import org.apache.spark.sql.{DataFrame, Row}
 import org.graphframes.GraphFrame
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
 import org.scalatest.{BeforeAndAfter, FunSuite, Matchers}
 import recipestore.input.DaggerInputComponent
 
 import scala.collection.immutable.Seq
 
+@RunWith(classOf[JUnitRunner])
 class GraphCreator$Test extends FunSuite with BeforeAndAfter {
 
   var graphCreator: GraphCreator = _
