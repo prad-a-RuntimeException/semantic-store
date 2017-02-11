@@ -2,7 +2,6 @@ test:
   pre:
     - pip install -r ./scripts/requirements.txt
   override:
-    - ./gradlew test
     - nosetests
   post:
     - mkdir -p $CIRCLE_TEST_REPORTS/junit/
