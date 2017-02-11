@@ -33,6 +33,7 @@ object PropertyGraphFactory {
   val sparkSession: SparkSession = SparkSession.builder()
     .appName("GraphFactory")
     .master("local")
+    .config("SPARK_CONF_DIR", "./infrastructure/spark-config")
     .getOrCreate()
   val sqlContext: SQLContext = sparkSession.sqlContext
 
@@ -44,10 +45,11 @@ object PropertyGraphFactory {
   }
 
 
-  def createGraph(resources: Stream[Resource]): GraphFrame = {
+  def createGraph(resources: Stream[Resource], limit: Int = -1): GraphFrame = {
 
     val verticesAndEdges: Seq[(mutable.Iterable[VertexValue], mutable.Iterable[Row])] =
-      resources.map(resource => memoizedCreateVertexFunction(resource))
+      (if (limit > 0) resources.take(limit) else resources)
+        .map(resource => memoizedCreateVertexFunction(resource))
 
     MetricsFactory.getMetricFactory.stopMeter("GraphCreator")
 
