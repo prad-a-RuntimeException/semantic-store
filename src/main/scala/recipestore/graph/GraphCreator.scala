@@ -24,7 +24,7 @@ class GraphCreator(val recipeApi: RecipeApi, val graphDirectory: String) {
 
   def write(limit: Int): Unit = {
 
-    val graph = load(10)
+    val graph = load(limit)
     graph.vertices.write.mode(SaveMode.Overwrite).parquet(s"$graphDirectory/vertices")
     graph.edges.write.mode(SaveMode.Overwrite).parquet(s"$graphDirectory/edges")
   }
