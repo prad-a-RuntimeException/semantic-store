@@ -1,4 +1,0 @@
-_:nodee77193416da833c3dbc31c3ed1b4038 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://schema.org/ListItem> <http://erecipe.woman.excite.co.jp/detail/edba3f56ea46ff6457d48594e86e1599.html> .
-_:nodee77193416da833c3dbc31c3ed1b4038 <http://schema.org/ListItem/item> <http://erecipe.woman.excite.co.jp/detail/edba3f56ea46ff6457d48594e86e1599.html//menu/20040119/> <http://erecipe.woman.excite.co.jp/detail/edba3f56ea46ff6457d48594e86e1599.html> .
-_:nodee77193416da833c3dbc31c3ed1b4038 <http://schema.org/ListItem/position> "3"@ja <http://erecipe.woman.excite.co.jp/detail/edba3f56ea46ff6457d48594e86e1599.html> .
-_:node256cbe21774dea9593b988148f2162 <http://schema.org/BreadcrumbList/itemListElement> _:nodee77193416da833c3dbc31c3ed1b4038 <http://erecipe.woman.excite.co.jp/detail/edba3f56ea46ff6457d48594e86e1599.html> .

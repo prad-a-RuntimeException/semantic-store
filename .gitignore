@@ -1,0 +1,12 @@
+.gradle/
+.idea/
+/build/
+gradlew.bat
+/data/
+/triple_store/
+/scripts/env
+.DS_Store
+*.pyc
+.ensime
+.ensime_cache.d
+.gradletasknamecache
