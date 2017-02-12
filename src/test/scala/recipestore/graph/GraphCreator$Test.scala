@@ -10,7 +10,6 @@ import recipestore.input.InputModule
 
 import scala.collection.immutable.Seq
 
-@RunWith(classOf[JUnitRunner])
 class GraphCreator$Test extends FunSuite with BeforeAndAfter {
 
   var graphCreator: GraphCreator = _
