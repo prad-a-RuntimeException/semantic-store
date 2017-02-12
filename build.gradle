@@ -17,20 +17,6 @@ sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 
-jacoco {
-    toolVersion = "0.7.6.201602180812"
-}
-jacocoTestReport {
-    reports {
-        xml.enabled false
-        csv.enabled false
-        html.destination "${buildDir}/coverage"
-    }
-}
-
-
-
-
 test {
     // set heap size for the test JVM(s)
     minHeapSize = "512m"
