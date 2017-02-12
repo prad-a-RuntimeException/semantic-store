@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import recipestore.db.triplestore.rdfparsers.CustomRDFDataMgr;
 import recipestore.db.triplestore.rdfparsers.LenientNquadParser;
+import recipestore.metrics.AddTimer;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -74,6 +75,7 @@ public class FileBasedTripleStoreDAO implements TripleStoreDAO {
     public final static Function<String, String> getFileLocation = (datasetName
     ) -> format("%s/%s", BASE_LOCATION, datasetName);
 
+    @AddTimer
     @Override
     public void populate(InputStream datasetStream) {
 

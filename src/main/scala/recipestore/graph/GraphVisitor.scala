@@ -3,6 +3,7 @@ package recipestore.graph
 import java.util
 
 import org.apache.jena.rdf.model.{Literal, Resource, Statement}
+import recipestore.metrics.AddTimer
 
 import scala.collection.JavaConverters._
 import scala.collection.immutable.Seq
@@ -46,6 +47,7 @@ object GraphVisitor {
     }).apply(resource))
   }
 
+  @AddTimer
   def traverse[A, B](resource: Resource, visitVertexFn: Function[Vertex, A],
                      visitEdgeFn: Function[Edge, B]): Unit = {
 

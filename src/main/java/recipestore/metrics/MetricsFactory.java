@@ -1,9 +1,6 @@
 package recipestore.metrics;
 
-import com.codahale.metrics.ConsoleReporter;
-import com.codahale.metrics.Counter;
-import com.codahale.metrics.Meter;
-import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,7 +27,7 @@ public class MetricsFactory {
 
     final Map<String, Meter> meters = new WeakHashMap<>();
     final Map<String, Counter> counters = new WeakHashMap<>();
-    final Map<String, AddCounter> timers = new WeakHashMap<>();
+    final Map<String, Timer> timers = new WeakHashMap<>();
 
     private final MetricRegistry metricRegistry = new MetricRegistry();
     private final ConsoleReporter reporter;
@@ -50,6 +47,18 @@ public class MetricsFactory {
             meters.put(meterName, metricRegistry.meter(meterName));
         }
         return meters.get(meterName);
+    }
+
+    public Timer initializeOrGetTimer(final String timerName) {
+        if (!timers.containsKey(timerName)) {
+            timers.put(timerName, metricRegistry.timer(timerName));
+        }
+        return timers.get(timerName);
+    }
+
+    public void stopTimer(final String timerName) {
+        LOGGER.info("Closing timers " + timerName);
+        timers.remove(timerName);
     }
 
     public void stopMeter(final String meterName) {

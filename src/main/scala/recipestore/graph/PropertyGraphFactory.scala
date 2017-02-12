@@ -10,7 +10,7 @@ import org.graphframes.GraphFrame
 import org.slf4j.{Logger, LoggerFactory}
 import recipestore.graph.DataTypeHelper.{getValue, inferField}
 import recipestore.graph.GraphVisitor.{Edge, Vertex}
-import recipestore.metrics.AddMeter
+import recipestore.metrics.{AddMeter, AddTimer}
 
 import scala.collection.JavaConverters._
 import scala.collection.immutable.{Iterable, Seq}
@@ -100,6 +100,7 @@ object PropertyGraphFactory {
 
 
   @AddMeter
+  @AddTimer
   def createVertices(resource: Resource): (mutable.Iterable[VertexValue], mutable.Iterable[Row]) = {
 
     val edgeDataFrames: mutable.ListBuffer[Row] = mutable.ListBuffer()
