@@ -1,6 +1,5 @@
 package recipestore.graph
 
-import com.codahale.metrics.Meter
 import com.twitter.storehaus.cache.MapCache.empty
 import com.twitter.storehaus.cache._
 import org.apache.jena.rdf.model.Resource
@@ -11,7 +10,7 @@ import org.graphframes.GraphFrame
 import org.slf4j.{Logger, LoggerFactory}
 import recipestore.graph.DataTypeHelper.{getValue, inferField}
 import recipestore.graph.GraphVisitor.{Edge, Vertex}
-import recipestore.metrics.MetricsFactory
+import recipestore.metrics.AddMeter
 
 import scala.collection.JavaConverters._
 import scala.collection.immutable.{Iterable, Seq}
@@ -29,7 +28,6 @@ object PropertyGraphFactory {
   val memoizedCreateVertexFunction = Memoize(vertexCache)(createVertices)
   private val schemaCache: MutableCache[String, StructType] =
     empty[String, StructType].toMutable()
-  private val meter: Meter = MetricsFactory.getMetricFactory.initializeMeter("GraphCreator")
   val sparkSession: SparkSession = SparkSession.builder()
     .appName("GraphFactory")
     .master("local")
@@ -50,8 +48,6 @@ object PropertyGraphFactory {
     val verticesAndEdges: Seq[(mutable.Iterable[VertexValue], mutable.Iterable[Row])] =
       (if (limit > 0) resources.take(limit) else resources)
         .map(resource => memoizedCreateVertexFunction(resource))
-
-    MetricsFactory.getMetricFactory.stopMeter("GraphCreator")
 
     val verticesDF: DataFrame = verticesAndEdges
       .flatMap(_._1)
@@ -103,8 +99,8 @@ object PropertyGraphFactory {
   }
 
 
+  @AddMeter
   def createVertices(resource: Resource): (mutable.Iterable[VertexValue], mutable.Iterable[Row]) = {
-    meter.mark()
 
     val edgeDataFrames: mutable.ListBuffer[Row] = mutable.ListBuffer()
     var vertexValues: mutable.ListBuffer[VertexValue] = mutable.ListBuffer()

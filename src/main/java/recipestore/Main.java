@@ -9,7 +9,8 @@ import org.slf4j.LoggerFactory;
 import recipestore.input.InputModule;
 import recipestore.input.RecipeApi;
 
-import java.util.stream.Stream;
+import java.util.List;
+import java.util.stream.Collectors;
 
 class Main {
 
@@ -50,8 +51,10 @@ class Main {
 
     public static void readRecipeData() {
         final RecipeApi instance = inputModule.getInstance(RecipeApi.class);
-        final Stream<Resource> recipeData = instance
-                .getRecipeData();
+        final List<Resource> recipeData = instance
+                .getRecipeData()
+                .collect(Collectors.toList());
+        System.out.println(recipeData.size());
 
     }
 

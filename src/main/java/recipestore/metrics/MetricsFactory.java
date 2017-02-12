@@ -1,10 +1,14 @@
 package recipestore.metrics;
 
-import com.codahale.metrics.*;
+import com.codahale.metrics.ConsoleReporter;
+import com.codahale.metrics.Counter;
+import com.codahale.metrics.Meter;
+import com.codahale.metrics.MetricRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.concurrent.TimeUnit;
@@ -26,11 +30,12 @@ public class MetricsFactory {
 
     final Map<String, Meter> meters = new WeakHashMap<>();
     final Map<String, Counter> counters = new WeakHashMap<>();
-    final Map<String, Timer> timers = new WeakHashMap<>();
+    final Map<String, AddCounter> timers = new WeakHashMap<>();
 
     private final MetricRegistry metricRegistry = new MetricRegistry();
     private final ConsoleReporter reporter;
 
+    @Singleton
     @Inject
     public MetricsFactory() {
         reporter = ConsoleReporter.forRegistry(metricRegistry)
@@ -40,7 +45,7 @@ public class MetricsFactory {
         reporter.start(1, TimeUnit.SECONDS);
     }
 
-    public Meter initializeMeter(final String meterName) {
+    public Meter initializeOrGetMeter(final String meterName) {
         if (!meters.containsKey(meterName)) {
             meters.put(meterName, metricRegistry.meter(meterName));
         }
@@ -53,7 +58,7 @@ public class MetricsFactory {
         meters.remove(meterName);
     }
 
-    public Counter initializeCounter(final String counterName) {
+    public Counter initializeOrGetCounter(final String counterName) {
         if (!meters.containsKey(counterName)) {
             counters.put(counterName, metricRegistry.counter(counterName));
         }
