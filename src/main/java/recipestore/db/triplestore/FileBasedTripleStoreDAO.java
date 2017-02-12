@@ -16,6 +16,7 @@ import recipestore.db.triplestore.rdfparsers.CustomRDFDataMgr;
 import recipestore.db.triplestore.rdfparsers.LenientNquadParser;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import java.io.File;
 import java.io.InputStream;
 import java.util.function.Consumer;
@@ -45,7 +46,7 @@ public class FileBasedTripleStoreDAO implements TripleStoreDAO {
 
 
     @Inject
-    public FileBasedTripleStoreDAO(final String datasetName) {
+    public FileBasedTripleStoreDAO(final @Named("datasetName") String datasetName) {
         this.datasetName = datasetName;
         initializeJenaModels();
 

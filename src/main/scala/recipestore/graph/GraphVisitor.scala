@@ -76,7 +76,6 @@ object GraphVisitor {
         edges.foreach(e => {
           val thisEdge = new Edge(getResourceID(thisResource), e.getPredicate.getLocalName,
             getResourceID(e.getObject.asResource()))
-          println(thisEdge)
           visitEdgeFn.apply(thisEdge)
           handled.add(getResourceID(e.getObject.asResource()))
           stack.add(e.getObject.asResource())

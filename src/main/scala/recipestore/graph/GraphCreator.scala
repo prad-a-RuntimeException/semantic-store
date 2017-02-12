@@ -1,6 +1,7 @@
 package recipestore.graph
 
 import java.util.stream.Stream
+import javax.inject.{Inject, Named}
 
 import org.apache.jena.rdf.model.Resource
 import org.apache.spark.sql.SaveMode
@@ -14,7 +15,7 @@ import scala.language.postfixOps
 /**
   * Resources to GraphFrame create.
   */
-class GraphCreator(val recipeApi: RecipeApi, val graphDirectory: String) {
+class GraphCreator @Inject()(val recipeApi: RecipeApi, @Named("graphDirectory") val graphDirectory: String) {
 
 
   def load(limit: Int): GraphFrame = {

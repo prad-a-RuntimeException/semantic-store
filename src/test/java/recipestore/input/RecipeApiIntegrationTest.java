@@ -35,14 +35,6 @@ public class RecipeApiIntegrationTest {
     public void shouldGetRecipeDataFromTheTripleStore() {
 
         final List<Resource> recipeData = recipeApi.getRecipeData().collect(Collectors.toList());
-
-
-        final Model singleRecipeModel = createDefaultModel().add(recipeData.get(0).listProperties().toList());
-        final StringWriter out = new StringWriter();
-        RDFDataMgr.write(out, singleRecipeModel, RDFFormat.RDFXML);
-        System.out.println(out.toString());
-
-
         assertThat("Should have allrecipes records ", recipeData.size(), Matchers.greaterThan(1));
 
 

@@ -2,6 +2,7 @@ package recipestore.input;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
+import com.google.inject.name.Names;
 import recipestore.ResourceLoader;
 import recipestore.db.triplestore.FileBasedTripleStoreDAO;
 import recipestore.db.triplestore.TripleStoreDAO;
@@ -21,12 +22,6 @@ public class InputModule extends AbstractModule {
 
 
     @Provides
-    public static String providesDatasetName() {
-        return "recipe";
-    }
-
-
-    @Provides
     public static InputStream providesDatasetStream() {
         try {
             return Files.newInputStream(Paths.get(DATASET_FILE_LOC), StandardOpenOption.READ);
@@ -38,5 +33,8 @@ public class InputModule extends AbstractModule {
     @Override
     protected void configure() {
         bind(TripleStoreDAO.class).to(FileBasedTripleStoreDAO.class);
+        bind(String.class)
+                .annotatedWith(Names.named("datasetName"))
+                .toInstance("recipe");
     }
 }

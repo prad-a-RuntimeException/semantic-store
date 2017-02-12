@@ -16,6 +16,7 @@ import recipestore.db.triplestore.rdfparsers.CustomRDFDataMgr;
 import recipestore.db.triplestore.rdfparsers.LenientNquadParser;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import java.io.InputStream;
 import java.util.function.Consumer;
 
@@ -38,7 +39,7 @@ public class StardogTripleStoreDAO implements TripleStoreDAO {
     private Connection connection;
 
     @Inject
-    public StardogTripleStoreDAO(final String datasetName, final StardogConfiguration configuration) {
+    public StardogTripleStoreDAO(@Named("datasetName") final String datasetName, final StardogConfiguration configuration) {
         this.datasetName = datasetName;
         this.configuration = configuration;
         createModel();
