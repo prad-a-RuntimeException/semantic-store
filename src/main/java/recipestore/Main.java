@@ -1,16 +1,20 @@
 package recipestore;
 
 import com.google.common.base.Joiner;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 import org.apache.jena.rdf.model.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import recipestore.input.DaggerInputComponent;
+import recipestore.input.InputModule;
+import recipestore.input.RecipeApi;
 
 import java.util.stream.Stream;
 
 class Main {
 
     public static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
+    public static Injector inputModule = Guice.createInjector(new InputModule());
 
     public enum Command {
         LoadRecipeData, ReadRecipeData
@@ -41,18 +45,12 @@ class Main {
     }
 
     public static void loadRecipeData() {
-        final recipestore.input.InputComponent inputComponent = DaggerInputComponent.builder()
-                .build();
-
-        inputComponent.getRecipeApi().loadRecipe(true);
+        inputModule.getInstance(RecipeApi.class).loadRecipe(true);
     }
 
     public static void readRecipeData() {
-        final recipestore.input.InputComponent inputComponent = DaggerInputComponent.builder()
-                .build();
-
-
-        final Stream<Resource> recipeData = inputComponent.getRecipeApi()
+        final RecipeApi instance = inputModule.getInstance(RecipeApi.class);
+        final Stream<Resource> recipeData = instance
                 .getRecipeData();
 
     }

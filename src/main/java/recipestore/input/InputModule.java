@@ -1,7 +1,7 @@
 package recipestore.input;
 
-import dagger.Module;
-import dagger.Provides;
+import com.google.inject.AbstractModule;
+import com.google.inject.Provides;
 import recipestore.ResourceLoader;
 import recipestore.db.triplestore.FileBasedTripleStoreDAO;
 import recipestore.db.triplestore.TripleStoreDAO;
@@ -14,8 +14,7 @@ import java.nio.file.StandardOpenOption;
 
 import static recipestore.ResourceLoader.Resource.triplestore;
 
-@Module
-public class InputModule {
+public class InputModule extends AbstractModule {
 
     private static final String DATASET_FILE_LOC = ResourceLoader.get.apply(triplestore,
             "input-file").orElse(null);
@@ -26,10 +25,6 @@ public class InputModule {
         return "recipe";
     }
 
-    @Provides
-    public static TripleStoreDAO providesTripleStoreDAO() {
-        return new FileBasedTripleStoreDAO(providesDatasetName());
-    }
 
     @Provides
     public static InputStream providesDatasetStream() {
@@ -40,4 +35,8 @@ public class InputModule {
         }
     }
 
+    @Override
+    protected void configure() {
+        bind(TripleStoreDAO.class).to(FileBasedTripleStoreDAO.class);
+    }
 }

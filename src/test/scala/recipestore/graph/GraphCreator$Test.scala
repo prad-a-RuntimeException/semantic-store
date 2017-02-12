@@ -1,19 +1,20 @@
 package recipestore.graph
 
+import com.google.inject.{Guice, Injector}
 import org.apache.spark.sql.{DataFrame, Row}
 import org.graphframes.GraphFrame
 import org.scalatest.{BeforeAndAfter, FunSuite, Matchers}
-import recipestore.input.DaggerInputComponent
+import recipestore.input.InputModule
 
 import scala.collection.immutable.Seq
 
 class GraphCreator$Test extends FunSuite with BeforeAndAfter {
 
   var graphCreator: GraphCreator = _
+  var inputModule: Injector = Guice.createInjector(new InputModule)
   before {
-    val recipeApi = DaggerInputComponent.builder().build().getRecipeApi
-    val graphDirectory = DaggerGraphComponent.builder().build().getGraphDirectory
-    graphCreator = new GraphCreator(recipeApi, graphDirectory.get())
+    val nestedInjector = inputModule.createChildInjector(new GraphModule)
+    graphCreator = nestedInjector.getInstance(classOf[GraphCreator])
     graphCreator.write(10)
   }
 

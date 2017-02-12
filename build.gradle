@@ -61,6 +61,8 @@ dependencies {
     compile 'org.apache.spark:spark-core_2.11:2.0.0'
     //Scala dependencies
     compile group: 'org.scala-lang', name: 'scala-library', version: '2.11.4'
+    compile 'net.codingwell:scala-guice_2.11:4.1.0'
+
     compile group: 'org.scalactic', name: 'scalactic_2.11', version: '3.0.0'
     //Triplestore dependencies
     compile 'org.apache.jena:apache-jena-libs:3.1.0'
@@ -79,6 +81,7 @@ dependencies {
     compile group: 'commons-io', name: 'commons-io', version: '2.4'
     compile 'com.google.guava:guava:19.0'
     compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.6.6'
+    compile group: 'com.google.inject', name: 'guice', version: '4.1.0'
     compile group: 'com.fasterxml.jackson.module', name: 'jackson-module-scala_2.11', version: '2.6.6'
     compile group: 'io.dropwizard.metrics', name: 'metrics-core', version: '3.1.0'
     compile group: 'com.amazonaws', name: 'aws-java-sdk-s3', version: '1.11.8'
@@ -86,8 +89,6 @@ dependencies {
     compile group: 'com.twitter', name: 'storehaus-cache_2.11', version: '0.11.1'
     compile group: 'org.json', name: 'json', version: '20160212'
     //DevTools
-    compile "com.google.dagger:dagger:2.6"
-    apt "com.google.dagger:dagger-compiler:2.6"
     apt "org.projectlombok:lombok:1.16.10"
     compile group: 'com.google.guava', name: 'guava', version: '19.0'
     compile(group: 'org.projectlombok', name: 'lombok', version: '1.16.10')
