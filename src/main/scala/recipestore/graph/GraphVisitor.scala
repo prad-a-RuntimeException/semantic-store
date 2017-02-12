@@ -60,26 +60,28 @@ object GraphVisitor {
         } catch {
           case _: UnsupportedOperationException => List()
         }
-      if (propertyList.isEmpty) {
-        return
+      if (!propertyList.isEmpty) {
+
+        val propertiesAndEdges: (Seq[Statement], Seq[Statement]) = propertyList
+          .toStream
+          .partition(stmt => stmt.getObject.canAs(classOf[Literal]))
+
+        val thisVertex: Vertex = createVertex(thisResource, propertiesAndEdges._1)
+        handled.add(thisVertex.id)
+        visitVertexFn.apply(thisVertex)
+
+        val edges: Seq[Statement] = propertiesAndEdges._2
+          .filter(stmt => !handled.contains(getResourceID(stmt.getObject.asResource())))
+
+        edges.foreach(e => {
+          val thisEdge = new Edge(getResourceID(thisResource), e.getPredicate.getLocalName,
+            getResourceID(e.getObject.asResource()))
+          println(thisEdge)
+          visitEdgeFn.apply(thisEdge)
+          handled.add(getResourceID(e.getObject.asResource()))
+          stack.add(e.getObject.asResource())
+        })
       }
-      val propertiesAndEdges: (Seq[Statement], Seq[Statement]) = propertyList
-        .toStream
-        .partition(stmt => stmt.getObject.canAs(classOf[Literal]))
-
-      val thisVertex: Vertex = createVertex(thisResource, propertiesAndEdges._1)
-      handled.add(thisVertex.id)
-      visitVertexFn.apply(thisVertex)
-
-      val edges: Seq[Statement] = propertiesAndEdges._2
-        .filter(stmt => !handled.contains(getResourceID(stmt.getObject.asResource())))
-
-      edges.foreach(edge => {
-        visitEdgeFn.apply(new Edge(getResourceID(thisResource), edge.getPredicate.getLocalName,
-          getResourceID(edge.getObject.asResource())))
-        handled.add(getResourceID(edge.getObject.asResource()))
-        stack.add(edge.getObject.asResource())
-      })
     }
 
   }

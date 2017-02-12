@@ -7,7 +7,7 @@ import static com.google.common.io.Resources.getResource;
 
 public class FileBasedTripleStoreDAOTest extends AbstractTripleStoreDAOTest {
 
-    private static final String TEST_FILE = "test_quads.nq";
+    private static final String TEST_FILE = "recipe.nq";
     private static FileBasedTripleStoreDAO tripleStoreDAO;
 
     static {

@@ -26,7 +26,7 @@ public class RecipeApiIntegrationTest {
     @BeforeClass
     @SneakyThrows
     public static void setup() {
-        final InputStream recipeStream = Resources.getResource("test_quads.nq").openStream();
+        final InputStream recipeStream = Resources.getResource("recipe.nq").openStream();
         recipeApi = new RecipeApi(new FileBasedTripleStoreDAO("int-test"), recipeStream);
         recipeApi.loadRecipe(true);
     }

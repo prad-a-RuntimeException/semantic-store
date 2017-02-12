@@ -12,7 +12,7 @@ import static com.google.common.io.Resources.getResource;
 @Ignore
 public class StardogTripleStoreDAOTest extends AbstractTripleStoreDAOTest {
 
-    private static final String TEST_FILE = "test_quads.nq";
+    private static final String TEST_FILE = "recipe.nq";
     private static StardogTripleStoreDAO tripleStoreDAO;
 
     @BeforeClass
