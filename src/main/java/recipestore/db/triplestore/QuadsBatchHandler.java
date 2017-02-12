@@ -16,14 +16,14 @@ import java.util.function.Consumer;
 import static org.slf4j.LoggerFactory.getLogger;
 import static recipestore.metrics.MetricsFactory.getMetricFactory;
 
-public class JenaStreamBatchHandler implements StreamRDFBatchHandler {
+public class QuadsBatchHandler implements StreamRDFBatchHandler {
 
 
-    public static JenaStreamBatchHandler createStreamBatchHandler(Consumer<Quad> quadConsumer) {
-        return new JenaStreamBatchHandler(quadConsumer);
+    public static QuadsBatchHandler createStreamBatchHandler(Consumer<Quad> quadConsumer) {
+        return new QuadsBatchHandler(quadConsumer);
     }
 
-    private static final Logger LOGGER = getLogger(JenaStreamBatchHandler.class);
+    private static final Logger LOGGER = getLogger(QuadsBatchHandler.class);
     public static final String TRIPLE_STORE_POPULATE = "TripleStorePopulate";
     private final Consumer<Quad> quadConsumer;
 
@@ -31,7 +31,7 @@ public class JenaStreamBatchHandler implements StreamRDFBatchHandler {
     private Meter meter;
 
     @Inject
-    public JenaStreamBatchHandler(Consumer<Quad> quadConsumer) {
+    public QuadsBatchHandler(Consumer<Quad> quadConsumer) {
         this.quadConsumer = quadConsumer;
     }
 

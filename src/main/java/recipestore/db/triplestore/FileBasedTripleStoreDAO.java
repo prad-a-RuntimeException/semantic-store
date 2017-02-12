@@ -25,7 +25,7 @@ import java.util.function.Predicate;
 import static java.lang.String.format;
 import static org.apache.jena.tdb.TDBFactory.createDataset;
 import static org.apache.jena.tdb.TDBFactory.createDatasetGraph;
-import static recipestore.db.triplestore.JenaStreamBatchHandler.createStreamBatchHandler;
+import static recipestore.db.triplestore.QuadsBatchHandler.createStreamBatchHandler;
 
 /**
  * Uses Jena TDB for triplestore in the local filesystem.

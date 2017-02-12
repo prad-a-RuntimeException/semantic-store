@@ -22,6 +22,7 @@ import java.util.function.Consumer;
 import static com.complexible.common.base.Option.create;
 import static com.complexible.common.base.Options.singleton;
 import static org.slf4j.LoggerFactory.getLogger;
+import static recipestore.db.triplestore.QuadsBatchHandler.createStreamBatchHandler;
 
 /**
  * Stardog database. Supports OWL 2 reasoning.
@@ -50,7 +51,7 @@ public class StardogTripleStoreDAO implements TripleStoreDAO {
             aConn.begin();
             final Model model = SDJenaFactory.createModel(aConn);
             Consumer<Quad> quadConsumer = (quad) -> model.add(model.asStatement(quad.asTriple()));
-            StreamRDF sink = new BatchedStreamRDF(JenaStreamBatchHandler.createStreamBatchHandler(quadConsumer));
+            StreamRDF sink = new BatchedStreamRDF(createStreamBatchHandler(quadConsumer));
             CustomRDFDataMgr.parse(sink, datasetStream, LenientNquadParser.LANG);
             aConn.commit();
         } catch (Exception e) {
