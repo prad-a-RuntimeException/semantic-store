@@ -93,12 +93,12 @@ dependencies {
     compile group: 'com.google.guava', name: 'guava', version: '19.0'
     compile(group: 'org.projectlombok', name: 'lombok', version: '1.16.10')
     //Lucene dependencies
-//    runtime group: 'org.apache.lucene', name: 'lucene-core', version: '6.2.1'
-//    runtime group: 'org.apache.lucene', name: 'lucene-misc', version: '6.2.1'
-//    runtime group: 'org.apache.lucene', name: 'lucene-queries', version: '6.2.1'
-//    runtime group: 'org.apache.lucene', name: 'lucene-queryparser', version: '6.2.1'
-//    runtime group: 'org.apache.lucene', name: 'lucene-analyzers-common', version: '6.2.1'
-//    compile group: 'org.apache.lucene', name: 'lucene-highlighter', version: '6.2.1'
+    compile group: 'org.apache.lucene', name: 'lucene-core', version: '6.2.1'
+    compile group: 'org.apache.lucene', name: 'lucene-misc', version: '6.2.1'
+    compile group: 'org.apache.lucene', name: 'lucene-queries', version: '6.2.1'
+    compile group: 'org.apache.lucene', name: 'lucene-queryparser', version: '6.2.1'
+    compile group: 'org.apache.lucene', name: 'lucene-analyzers-common', version: '6.2.1'
+    compile group: 'org.apache.lucene', name: 'lucene-highlighter', version: '6.2.1'
     //test dependencies
     testCompile group: 'org.scalatest', name: 'scalatest_2.11', version: '3.0.0'
     testCompile group: 'junit', name: 'junit', version: '4.12'
