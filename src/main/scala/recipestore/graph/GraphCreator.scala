@@ -30,13 +30,4 @@ class GraphCreator @Inject()(val recipeApi: RecipeApi, @Named("graphDirectory") 
     graph.edges.write.mode(SaveMode.Overwrite).parquet(s"$graphDirectory/edges")
   }
 
-  def loadFromFile(): GraphFrame = {
-
-    val context = PropertyGraphFactory.sparkSession.sqlContext
-
-    val vertices = context.read.parquet(s"$graphDirectory/vertices")
-    val edges = context.read.parquet(s"$graphDirectory/edges")
-    GraphFrame(vertices, edges)
-  }
-
 }

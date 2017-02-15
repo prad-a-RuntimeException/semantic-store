@@ -2,15 +2,15 @@ package recipestore.nlp.corpus.ingredient
 
 import com.google.common.io.Resources
 import org.scalatest.{FunSuite, Matchers}
-import recipestore.nlp.corpus.WordnetApi
+import recipestore.nlp.corpus.{WordnetApi, WordnetModel}
 
 import scala.collection.mutable
 
-class WordnetResourceTest extends FunSuite with Matchers {
+class WordnetApiTest extends FunSuite with Matchers {
 
   test("Should return traversable wordnet resource") {
 
-    val wordnetData: Map[String, WordnetApi#WordnetResource] =
+    val wordnetData: Map[String, WordnetModel] =
       new WordnetApi(Resources.getResource("wordnet.fn").openStream())
         .getWordnetFoodData
 

@@ -1,13 +1,17 @@
-package recipestore.nlp
+package recipestore.nlp.lucene
 
 import javax.inject.Inject
 
+import com.google.inject.Singleton
 import lombok.SneakyThrows
 import org.apache.lucene.analysis.Analyzer
 import org.apache.lucene.document.{Document, Field, FieldType}
 import org.apache.lucene.index.{IndexOptions, IndexWriter, IndexWriterConfig}
+import org.slf4j.{Logger, LoggerFactory}
 
+@Singleton
 class LuceneWriteApi @Inject()(luceneDAO: LuceneDAO, val analyzer: Analyzer) {
+  val logger:Logger = LoggerFactory.getLogger(classOf[LuceneWriteApi])
   val conf = new IndexWriterConfig(analyzer)
   conf.setRAMBufferSizeMB(1024)
   val indexWriter = try {
@@ -25,7 +29,7 @@ class LuceneWriteApi @Inject()(luceneDAO: LuceneDAO, val analyzer: Analyzer) {
     * @param map
     * @return
     */
-  def write(map: Map[String, AnyRef]) = {
+  def write(map: Map[String, Any]) = {
     val doc: Document = new Document
     val fieldType = getFieldType()
     map.foreach(entry => entry._2 match {
@@ -37,11 +41,12 @@ class LuceneWriteApi @Inject()(luceneDAO: LuceneDAO, val analyzer: Analyzer) {
             doc.add(new Field(entry._1, e.toString, fieldType))
           })
       }
+      case _ =>
     })
     indexWriter.addDocument(doc)
   }
 
-  def write(maps: Iterable[Map[String, AnyRef]]): Unit = {
+  def write(maps: Iterable[Map[String, Any]]): Unit = {
     maps.foreach(write)
     commit()
   }

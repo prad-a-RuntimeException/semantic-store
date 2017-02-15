@@ -1,4 +1,4 @@
-package recipestore.nlp
+package recipestore.nlp.lucene
 
 import java.io.File
 import java.nio.file.Paths.get

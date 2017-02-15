@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableList;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.Resource;
 import org.jooq.lambda.Seq;
-import recipestore.metrics.AddMeter;
 
 import java.io.InputStream;
 import java.util.Iterator;
@@ -28,15 +27,11 @@ public interface TripleStoreDAO {
                 .mapWith(stmt -> stmt.getSubject());
         final ImmutableList.Builder<Resource> recipeListBuilder = ImmutableList.builder();
         try {
-            recipeItr.forEachRemaining(recipe -> addData(recipeListBuilder, recipe));
+            recipeItr.forEachRemaining(recipe -> recipeListBuilder.add(recipe));
         } catch (Exception e) {
             getLogger(TripleStoreDAO.class).warn("Recipe statement iterator failing {} ", e.getLocalizedMessage());
         }
         return Seq.seq(recipeListBuilder.build());
     }
 
-    @AddMeter
-    default void addData(ImmutableList.Builder<Resource> recipeListBuilder, final Resource resource) {
-        recipeListBuilder.add(resource);
-    }
 }
