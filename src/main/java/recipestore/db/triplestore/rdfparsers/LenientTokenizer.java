@@ -11,7 +11,6 @@ import org.apache.jena.riot.tokens.TokenChecker;
 import org.apache.jena.riot.tokens.TokenType;
 import org.apache.jena.riot.tokens.Tokenizer;
 import org.apache.jena.sparql.ARQInternalErrorException;
-import recipestore.metrics.AddTimer;
 
 import java.io.InputStream;
 import java.util.NoSuchElementException;
@@ -185,7 +184,6 @@ public final class LenientTokenizer implements Tokenizer {
         }
     }
 
-    @AddTimer
     public Token parseToken() {
         token = new Token(getLine(), getColumn());
 

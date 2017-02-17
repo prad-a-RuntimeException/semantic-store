@@ -3,7 +3,6 @@ package recipestore.graph
 import java.util
 
 import org.apache.jena.rdf.model.{Literal, Resource, Statement}
-import recipestore.metrics.AddTimer
 
 import scala.collection.JavaConverters._
 import scala.collection.immutable.Seq
@@ -47,7 +46,6 @@ object GraphVisitor {
     }).apply(resource))
   }
 
-  @AddTimer
   def traverse[A, B](resource: Resource, visitVertexFn: Function[Vertex, A],
                      visitEdgeFn: Function[Edge, B]): Unit = {
 
@@ -62,7 +60,7 @@ object GraphVisitor {
         } catch {
           case _: UnsupportedOperationException => List()
         }
-      if (!propertyList.isEmpty) {
+      if (propertyList.nonEmpty) {
 
         val propertiesAndEdges: (Seq[Statement], Seq[Statement]) = propertyList
           .toStream
@@ -72,33 +70,29 @@ object GraphVisitor {
         handled.add(thisVertex.id)
         visitVertexFn.apply(thisVertex)
 
-        val edges: Seq[Statement] = propertiesAndEdges._2
+        propertiesAndEdges._2
           .filter(stmt => !handled.contains(getResourceID(stmt.getObject.asResource())))
-
-        edges.foreach(e => {
-          val thisEdge = new Edge(getResourceID(thisResource), e.getPredicate.getLocalName,
-            getResourceID(e.getObject.asResource()))
-          visitEdgeFn.apply(thisEdge)
-          handled.add(getResourceID(e.getObject.asResource()))
-          stack.add(e.getObject.asResource())
-        })
+          .foreach(e => {
+            handled.add(getResourceID(e.getObject.asResource()))
+            val thisEdge = new Edge(getResourceID(thisResource), e.getPredicate.getLocalName,
+              getResourceID(e.getObject.asResource()))
+            visitEdgeFn.apply(thisEdge)
+            stack.add(e.getObject.asResource())
+          })
       }
     }
 
   }
 
-  def getResourceType(resource: Resource): String = {
-    resource.listProperties().toList.asScala
-      .filter(stmt => stmt.getPredicate.getLocalName.equals("type"))
-      .filter(stmt => stmt.getObject != null)
-      .filter(stmt => stmt.getObject.canAs(classOf[Resource]))
-      .filter(stmt => stmt.getObject.asResource().getLocalName != null)
-      .map(stmt => stmt.getObject.asResource())
-      .map(obj => obj.getLocalName)
-      .filterNot(name => name == null || name.contains("w3"))
-      .find(_ != null)
-      .getOrElse(null)
-  }
+  def getResourceType(resource: Resource): String = resource.listProperties().toList.asScala
+    .filter(stmt => stmt.getPredicate.getLocalName.equals("type"))
+    .filter(stmt => stmt.getObject != null)
+    .filter(stmt => stmt.getObject.canAs(classOf[Resource]))
+    .filter(stmt => stmt.getObject.asResource().getLocalName != null)
+    .map(stmt => stmt.getObject.asResource())
+    .map(obj => obj.getLocalName)
+    .filterNot(name => name == null || name.contains("w3"))
+    .find(_ != null).orNull
 
   private def createVertex(resource: Resource, propertyList: Seq[Statement]) = {
 

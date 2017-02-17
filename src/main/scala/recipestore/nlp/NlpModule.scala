@@ -1,5 +1,6 @@
 package recipestore.nlp
 
+import com.google.common.base.MoreObjects
 import com.google.common.io.Resources
 import com.google.inject.{Provides, Singleton}
 import net.codingwell.scalaguice.ScalaModule
@@ -11,21 +12,27 @@ import recipestore.nlp.corpus.WordnetApi
 import recipestore.nlp.corpus.ingredient.WordnetCorpusFactory
 import recipestore.nlp.lucene.LuceneDAO
 
-class NlpModule(indexDir: String, analyzer: Analyzer) extends GraphModule with ScalaModule {
+object NlpModule {
+  val wordnetIndexDir = "wordnet"
+  val ingredientIndexDir = "ingredient"
+}
+
+class NlpModule(indexDir: String, createNewIndex: Boolean = false) extends GraphModule with ScalaModule {
 
   final lazy val baseDir: String = ResourceLoader.get.apply(ResourceLoader.Resource.lucene, "index-dir").toOption.getOrElse("")
 
+  var analyzer: Analyzer = null
   final val wordnetStream = Resources.getResource("wordnet.fn").openStream()
 
-
-  def this(indexDir: String) {
-    this(indexDir, WordnetCorpusFactory.apply().analyzer)
+  def this(indexDir: String, analyzer: Analyzer) = {
+    this(indexDir, true)
+    this.analyzer = analyzer
   }
 
   @Provides
   @Singleton
   def getLuceneDAO: LuceneDAO = {
-    return new LuceneDAO(s"$baseDir/$indexDir", true)
+    return new LuceneDAO(s"$baseDir/$indexDir", createNewIndex)
   }
 
   @Provides
@@ -42,6 +49,6 @@ class NlpModule(indexDir: String, analyzer: Analyzer) extends GraphModule with S
   override protected def configure(): Unit = {
     super.configure()
     bind(classOf[Analyzer])
-      .toInstance(analyzer)
+      .toInstance(MoreObjects.firstNonNull(analyzer, getWordnetCorspusFactory.analyzer))
   }
 }

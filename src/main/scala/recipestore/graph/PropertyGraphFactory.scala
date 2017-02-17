@@ -10,7 +10,7 @@ import org.graphframes.GraphFrame
 import org.slf4j.{Logger, LoggerFactory}
 import recipestore.graph.DataTypeHelper.{getValue, inferField}
 import recipestore.graph.GraphVisitor.{Edge, Vertex}
-import recipestore.metrics.AddMeter
+import recipestore.metrics.{MeterWrapper, MetricsFactory, MetricsWrapper}
 
 import scala.collection.JavaConverters._
 import scala.collection.immutable.{Iterable, Seq}
@@ -42,9 +42,11 @@ object PropertyGraphFactory {
     mergeColumns(vertex1, vertex2)
   }
 
+  var meter: MetricsWrapper = null
 
   def createGraph(resources: Stream[Resource], limit: Int = -1): GraphFrame = {
 
+    meter = MetricsFactory.get("CreatePropertyGraph", classOf[MeterWrapper])
     val verticesAndEdges: Seq[(mutable.Iterable[VertexValue], mutable.Iterable[Row])] =
       (if (limit > 0) resources.take(limit) else resources)
         .map(resource => memoizedCreateVertexFunction(resource))
@@ -66,11 +68,12 @@ object PropertyGraphFactory {
     val edgesDF: Seq[Row] = verticesAndEdges
       .flatMap(_._2)
 
-
+    MetricsFactory.remove("CreatePropertyGraph", classOf[MeterWrapper])
     GraphFrame(verticesDF, sqlContext.createDataFrame(edgesDF.toList.asJava, edgeSchema))
   }
 
   def createGraph(resource: Resource): GraphFrame = {
+
     val dataFrames: (mutable.Iterable[VertexValue], mutable.Iterable[Row]) = memoizedCreateVertexFunction(resource)
     GraphFrame(dataFrames._1
       .groupBy(_.schema)
@@ -99,9 +102,9 @@ object PropertyGraphFactory {
   }
 
 
-  @AddMeter
   def createVertices(resource: Resource): (mutable.Iterable[VertexValue], mutable.Iterable[Row]) = {
 
+    if (meter != null) meter.poke
     val edgeDataFrames: mutable.ListBuffer[Row] = mutable.ListBuffer()
     var vertexValues: mutable.ListBuffer[VertexValue] = mutable.ListBuffer()
 

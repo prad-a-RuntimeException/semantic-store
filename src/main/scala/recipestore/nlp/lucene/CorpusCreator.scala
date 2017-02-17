@@ -4,30 +4,32 @@ import com.google.inject.Guice
 import org.apache.lucene.analysis.Analyzer
 import org.apache.spark.sql.DataFrame
 import recipestore.nlp.NlpModule
+import recipestore.nlp.NlpModule.ingredientIndexDir
 import recipestore.nlp.corpus.ingredient.WordnetCorpusFactory
 import recipestore.nlp.corpus.recipe.IngredientCorpusFactory
 
 object CorpusCreator {
 
-  private val wordnetIndexDir = "wordnet"
-  private val ingredientIndexDir = "ingredient"
-
-
   def main(args: Array[String]): Unit = {
 
+    createWordnetCorpus
+    createRecipeIngredientCorpus
+  }
 
+  private def createRecipeIngredientCorpus = {
     val factory = () => {
-      val graphModule = Guice.createInjector(new NlpModule(ingredientIndexDir))
+      val graphModule = Guice.createInjector(new NlpModule(indexDir = ingredientIndexDir, createNewIndex = true))
       graphModule.getInstance(classOf[IngredientCorpusFactory])
     }
-    createRecipeCorpus(() => {
+    _createRecipeCorpus(() => {
       factory.apply().datasets
-    }, () => factory.apply().analyzer,
+    }
+      , () => factory.apply().analyzer,
       ingredientIndexDir)
   }
 
   def createWordnetCorpus(): LuceneSearchApi = {
-    val nlpModule = Guice.createInjector(new NlpModule(wordnetIndexDir))
+    val nlpModule = Guice.createInjector(new NlpModule(indexDir = NlpModule.wordnetIndexDir, createNewIndex = true))
     val luceneWriteApi = nlpModule.getInstance(classOf[LuceneWriteApi])
     val wordnetCorpusFactory = nlpModule.getInstance(classOf[WordnetCorpusFactory])
     luceneWriteApi.write(wordnetCorpusFactory.document)
@@ -39,13 +41,13 @@ object CorpusCreator {
     * Spark module expects everything to be serializable, we try to divorce the spark
     * runnable to the instance by creating (anon) functions.
     *
-    * @param frame
+    * @param recipeVertices
     * @param analyzer
     * @param indexDir
     */
-  def createRecipeCorpus(frame: () => DataFrame, analyzer: () => Analyzer, indexDir: String) = {
+  def _createRecipeCorpus(recipeVertices: () => DataFrame, analyzer: () => Analyzer, indexDir: String) = {
     def getLuceneWriterApi = {
-      val nlpModule = Guice.createInjector(new NlpModule(indexDir, analyzer.apply()))
+      val nlpModule = Guice.createInjector(new NlpModule(indexDir))
       val luceneWriteApi = nlpModule.getInstance(classOf[LuceneWriteApi])
       luceneWriteApi
     }
@@ -55,12 +57,19 @@ object CorpusCreator {
       luceneWriteApi.write(valuesMap)
     }
 
-    frame.apply()
+
+    val recipeDF = recipeVertices()
+    val accumulator = recipeDF.sparkSession.sparkContext.longAccumulator("RecipeIndexLoaderCount")
+    recipeDF
       .repartition(1)
       .foreachPartition(partition => {
         val writerApi = getLuceneWriterApi
         partition.foreach(row => {
-          val valuesMap: Map[String, Nothing] = row.getValuesMap(Seq("id", "name", "ingredients"))
+          if (accumulator.value % 1000 == 0) {
+            println(s"Done with $accumulator.value records")
+          }
+          val valuesMap: Map[String, Nothing] = row.getValuesMap(Seq("id", "name", "ingredients", "reviews"))
+          accumulator.add(1)
           writerApi.write(valuesMap)
         })
         writerApi.commit()

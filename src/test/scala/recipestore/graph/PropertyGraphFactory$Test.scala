@@ -1,7 +1,6 @@
 package recipestore.graph
 
 import com.google.common.io.Resources
-import com.twitter.storehaus.cache.{MapCache, Memoize, MutableCache}
 import org.apache.jena.rdf.model.{ModelFactory, Resource}
 import org.apache.spark.sql.Row
 import org.graphframes.GraphFrame

@@ -6,7 +6,6 @@ import org.apache.jena.riot.other.StreamRDFBatchHandler;
 import org.apache.jena.sparql.core.Quad;
 import org.slf4j.Logger;
 import recipestore.input.RecipePredicates;
-import recipestore.metrics.AddMeter;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -41,7 +40,6 @@ public class QuadsBatchHandler implements StreamRDFBatchHandler {
 
     }
 
-    @AddMeter
     @Override
     public void batchQuads(Node currentGraph, Node currentSubject, List<Quad> quads) {
         final String uri = currentGraph.getURI().toLowerCase();

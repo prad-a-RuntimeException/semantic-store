@@ -11,7 +11,7 @@ import org.slf4j.{Logger, LoggerFactory}
 
 @Singleton
 class LuceneWriteApi @Inject()(luceneDAO: LuceneDAO, val analyzer: Analyzer) {
-  val logger:Logger = LoggerFactory.getLogger(classOf[LuceneWriteApi])
+  val logger: Logger = LoggerFactory.getLogger(classOf[LuceneWriteApi])
   val conf = new IndexWriterConfig(analyzer)
   conf.setRAMBufferSizeMB(1024)
   val indexWriter = try {
@@ -37,6 +37,7 @@ class LuceneWriteApi @Inject()(luceneDAO: LuceneDAO, val analyzer: Analyzer) {
         doc.add(new Field(entry._1, entry._2.asInstanceOf[String], fieldType))
       case _: Iterable[String] => {
         entry._2.asInstanceOf[Iterable[String]]
+          .filter(e => e != null)
           .foreach(e => {
             doc.add(new Field(entry._1, e.toString, fieldType))
           })
