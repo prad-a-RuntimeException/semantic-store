@@ -21,15 +21,15 @@ public interface TripleStoreDAO {
 
     Model getModel();
 
-    default Stream<Resource> getRecipeResource() {
+    default Stream<Resource> getResource(String resourceUri) {
         final Iterator<Resource> recipeItr = getModel()
-                .listStatements(null, null, getModel().getResource("http://schema.org/Recipe"))
+                .listStatements(null, null, getModel().getResource(resourceUri))
                 .mapWith(stmt -> stmt.getSubject());
         final ImmutableList.Builder<Resource> recipeListBuilder = ImmutableList.builder();
         try {
             recipeItr.forEachRemaining(recipe -> recipeListBuilder.add(recipe));
         } catch (Exception e) {
-            getLogger(TripleStoreDAO.class).warn("Recipe statement iterator failing {} ", e.getLocalizedMessage());
+            getLogger(TripleStoreDAO.class).warn("statement iterator failing {} ", e.getLocalizedMessage());
         }
         return Seq.seq(recipeListBuilder.build());
     }

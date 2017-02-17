@@ -27,7 +27,10 @@ public class RecipeApi {
     }
 
     public Stream<Resource> getRecipeData() {
-        return tripleStoreDAO.getRecipeResource();
+        return tripleStoreDAO.getResource("http://schema.org/Recipe");
     }
 
-}
+    public Stream<Resource> getRecipeData() {
+
+
+    }
