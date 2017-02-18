@@ -1,9 +1,12 @@
 package recipestore.nlp.corpus.ingredient
 
 import com.google.common.io.Resources.getResource
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
 import org.scalatest.{FunSuite, Matchers}
 import recipestore.nlp.corpus.WordnetApi
 
+@RunWith(classOf[JUnitRunner])
 class WordnetCorpusFactoryTest extends FunSuite with Matchers {
 
   val wordnetCorpusFactory: WordnetCorpusFactory = new WordnetCorpusFactory(new WordnetApi(getResource("wordnet.fn")

@@ -1,11 +1,14 @@
 package recipestore.nlp.corpus.ingredient
 
 import com.google.common.io.Resources
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
 import org.scalatest.{FunSuite, Matchers}
 import recipestore.nlp.corpus.{WordnetApi, WordnetModel}
 
 import scala.collection.mutable
 
+@RunWith(classOf[JUnitRunner])
 class WordnetApiTest extends FunSuite with Matchers {
 
   test("Should return traversable wordnet resource") {

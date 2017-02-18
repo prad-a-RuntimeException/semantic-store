@@ -3,11 +3,14 @@ package recipestore.nlp
 import com.github.javafaker.Faker
 import com.google.inject.{Guice, Injector}
 import org.apache.lucene.analysis.standard.StandardAnalyzer
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
 import org.scalatest.{BeforeAndAfter, FunSuite, Matchers}
 import recipestore.nlp.lucene.{LuceneSearchApi, LuceneWriteApi}
 
 import scala.collection.immutable.IndexedSeq
 
+@RunWith(classOf[JUnitRunner])
 class LuceneDAOIntegrationTest extends FunSuite with Matchers with BeforeAndAfter {
 
 

@@ -115,6 +115,7 @@ public class FileBasedTripleStoreDAO implements TripleStoreDAO {
     public void delete(boolean clearFileSystem) {
         if (dataset != null) {
             dataset.close();
+            dataset = null;
             saveAndClose();
         }
         if (clearFileSystem)

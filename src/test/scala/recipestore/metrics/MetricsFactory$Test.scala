@@ -1,7 +1,10 @@
 package recipestore.metrics
 
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
 import org.scalatest.{FunSuite, Matchers}
 
+@RunWith(classOf[JUnitRunner])
 class MetricsFactory$Test extends FunSuite with Matchers {
 
 
@@ -23,7 +26,7 @@ class MetricsFactory$Test extends FunSuite with Matchers {
     metrics.status should be equals (0)
     metrics.poke
     metrics.status should be equals (1)
-    MetricsFactory.remove("TestCounter", classOf[MeterWrapper])
+    MetricsFactory.remove("TestCounter", classOf[CounterWrapper])
     MetricsFactory.reporterStatus.get() should be(false)
   }
 
