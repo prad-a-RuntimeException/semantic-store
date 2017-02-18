@@ -25,7 +25,6 @@ import org.apache.jena.riot.*;
 import org.apache.jena.riot.lang.LangRIOT;
 import org.apache.jena.riot.system.*;
 import org.apache.jena.riot.tokens.Tokenizer;
-import org.apache.jena.riot.tokens.TokenizerFactory;
 import org.apache.jena.sparql.util.Context;
 import org.apache.jena.system.JenaSystem;
 import org.slf4j.Logger;
@@ -141,7 +140,7 @@ public class CustomRDFDataMgr extends RDFDataMgr {
 
     public static LangRIOT createParser(InputStream input, StreamRDF dest) {
 
-        Tokenizer tokenizer = TokenizerFactory.makeTokenizerUTF8(input);
+        Tokenizer tokenizer = LenientTokenizer.create(input);
         ParserProfile profile = RiotLib.profile(RDFLanguages.NQUADS, null);
         return new LenientNquadParser(tokenizer, profile, dest);
     }

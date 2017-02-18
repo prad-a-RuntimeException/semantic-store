@@ -3,14 +3,11 @@ package recipestore;
 import com.google.common.base.Joiner;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import recipestore.input.InputModule;
 import recipestore.input.RecipeApi;
 
-class TripleStoreLoader {
+class TripleStoreEntryPoint {
 
-    public static final Logger LOGGER = LoggerFactory.getLogger(TripleStoreLoader.class);
     public static Injector inputModule = Guice.createInjector(new InputModule());
 
     public enum Command {
@@ -47,8 +44,8 @@ class TripleStoreLoader {
 
     public static void readRecipeData() {
         final RecipeApi instance = inputModule.getInstance(RecipeApi.class);
-
-
+        instance.getRecipeData()
+                .forEach(r -> r.listProperties().toList());
     }
 
 

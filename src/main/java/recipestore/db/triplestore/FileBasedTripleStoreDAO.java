@@ -6,10 +6,12 @@ import org.apache.commons.io.FileUtils;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.RDFNode;
+import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.riot.other.BatchedStreamRDF;
 import org.apache.jena.riot.system.StreamRDF;
 import org.apache.jena.sparql.core.DatasetGraph;
 import org.apache.jena.sparql.core.Quad;
+import org.apache.jena.util.iterator.ExtendedIterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import recipestore.db.triplestore.rdfparsers.CustomRDFDataMgr;
@@ -19,6 +21,8 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import java.io.File;
 import java.io.InputStream;
+import java.util.Iterator;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -41,7 +45,6 @@ public class FileBasedTripleStoreDAO implements TripleStoreDAO {
 
     private final String datasetName;
     private Dataset dataset;
-    private Model model;
     private Consumer<Quad> quadConsumer;
 
 
@@ -63,7 +66,6 @@ public class FileBasedTripleStoreDAO implements TripleStoreDAO {
         }
         final String fileLocation = getFileLocation.apply(this.datasetName);
         this.dataset = createDataset(fileLocation);
-        this.model = dataset.getNamedModel("urn:x-arq:UnionGraph");
 
         final DatasetGraph datasetGraph = createDatasetGraph(fileLocation);
         quadConsumer = (quad) -> {
@@ -77,7 +79,7 @@ public class FileBasedTripleStoreDAO implements TripleStoreDAO {
     @Override
     public void populate(InputStream datasetStream) {
 
-        if (model == null || model.isClosed()) {
+        if (dataset == null) {
             initializeJenaModels();
         }
         try {
@@ -98,10 +100,9 @@ public class FileBasedTripleStoreDAO implements TripleStoreDAO {
 
     @Override
     public void saveAndClose() {
-        if (model != null && dataset != null) {
+        if (dataset != null) {
             try {
-                model.commit();
-                model.close();
+                dataset.commit();
                 dataset.close();
             } catch (Exception e) {
                 LOGGER.warn("Failed cleaning up Triplestore file system");
@@ -112,8 +113,8 @@ public class FileBasedTripleStoreDAO implements TripleStoreDAO {
     @Override
     @SneakyThrows
     public void delete(boolean clearFileSystem) {
-        if (model != null && dataset != null) {
-            model.removeAll();
+        if (dataset != null) {
+            dataset.close();
             saveAndClose();
         }
         if (clearFileSystem)
@@ -121,7 +122,51 @@ public class FileBasedTripleStoreDAO implements TripleStoreDAO {
     }
 
     @Override
-    public Model getModel() {
-        return model;
+    public Iterator<Resource> getResource(String resourceUri) {
+
+        Function<String, Resource> getResource = (graphName) -> {
+            if (graphName == null) return null;
+            final Model model = getDataset().getNamedModel(graphName);
+            final ExtendedIterator<Resource> recipeItr = model
+                    .listStatements(null, null, model.getResource(resourceUri))
+                    .mapWith(stmt -> stmt.getSubject());
+            if (recipeItr.hasNext()) {
+                return recipeItr.next().asResource();
+            } else {
+                return null;
+            }
+        };
+        final Iterator<String> graphNames = getDataset().listNames();
+
+        if (!graphNames.hasNext()) return null;
+        final AtomicReference<String> graphName = new AtomicReference<>(graphNames.next());
+
+
+        return new Iterator<Resource>() {
+            Resource graphResource = null;
+
+            @Override
+            public boolean hasNext() {
+                try {
+                    final boolean hasNextValueInGraph
+                            = (graphResource = getResource.apply(graphName.get())) != null;
+                    graphName.set(graphNames.hasNext() ? graphNames.next() : null);
+                    return hasNextValueInGraph;
+                } catch (Exception e) {
+                    graphResource = null;
+                    return false;
+                } finally {
+
+                }
+            }
+
+            @Override
+            public Resource next() {
+                return graphResource;
+            }
+        };
+
+
     }
+
 }

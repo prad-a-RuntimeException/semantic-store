@@ -2,6 +2,7 @@ package recipestore.input;
 
 
 import org.apache.jena.rdf.model.Resource;
+import org.jooq.lambda.Seq;
 import recipestore.db.triplestore.TripleStoreDAO;
 
 import javax.inject.Inject;
@@ -27,10 +28,7 @@ public class RecipeApi {
     }
 
     public Stream<Resource> getRecipeData() {
-        return tripleStoreDAO.getResource("http://schema.org/Recipe");
+        return Seq.seq(tripleStoreDAO.getResource("http://schema.org/Recipe"));
     }
 
-    public Stream<Resource> getRecipeData() {
-
-
-    }
+}

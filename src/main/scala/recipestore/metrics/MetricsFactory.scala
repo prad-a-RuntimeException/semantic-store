@@ -67,11 +67,14 @@ object MetricsFactory {
   }
 
   def initReporter(duration: Int = 10): Unit = {
+    reporterStatus.set(true)
     reporter = createReporter
+    reporter.start(duration, TimeUnit.SECONDS)
   }
 
   def stopReporter() = {
     if (reporter != null) {
+      reporterStatus.set(false)
       reporter.stop()
       reporter = null
     }

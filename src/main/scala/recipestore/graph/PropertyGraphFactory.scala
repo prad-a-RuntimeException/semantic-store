@@ -31,6 +31,8 @@ object PropertyGraphFactory {
   val sparkSession: SparkSession = SparkSession.builder()
     .appName("GraphFactory")
     .master("local")
+    .config("spark.driver.memory", "2g")
+    .config("spark.executor.memory", "4g")
     .config("SPARK_CONF_DIR", "./infrastructure/spark-config")
     .getOrCreate()
   val sqlContext: SQLContext = sparkSession.sqlContext
@@ -51,10 +53,12 @@ object PropertyGraphFactory {
       (if (limit > 0) resources.take(limit) else resources)
         .map(resource => memoizedCreateVertexFunction(resource))
 
+    val vertexMeter = MetricsFactory.get("VertexMeter", classOf[MeterWrapper])
     val verticesDF: DataFrame = verticesAndEdges
       .flatMap(_._1)
       .groupBy(_.schema)
       .map(rowsForSchema => {
+        vertexMeter.poke
         try {
           sqlContext.createDataFrame(rowsForSchema._2.map(_.row).toList.asJava, rowsForSchema._1)
         } catch {
@@ -64,6 +68,8 @@ object PropertyGraphFactory {
       })
       .filter(_ != null)
       .reduce((mem, curr) => mergeColumns(mem, curr))
+
+    MetricsFactory.remove("VertexMeter", classOf[MeterWrapper])
 
     val edgesDF: Seq[Row] = verticesAndEdges
       .flatMap(_._2)
