@@ -22,20 +22,11 @@ class IngredientCorpusFactory @Inject()(override val wordnetApi: WordnetApi, val
 
   lazy val datasets: DataFrame = {
 
-    recipeRows.orderBy("id").limit(100).createOrReplaceTempView("recipe")
-    recipeRows.foreach(recipe => {
-      println(s"Recipe $recipe")
-    })
-    recipeReviews.orderBy("id").limit(100).createOrReplaceTempView("individualRecipeReviews")
-    recipeReviews.foreach(recipeReview => {
-      println(s"RecipeReview $recipeReview")
-    })
+    recipeRows.createOrReplaceTempView("recipe")
+    recipeReviews.createOrReplaceTempView("individualRecipeReviews")
     sql("SELECT id,collect_list(review) as reviews  FROM individualRecipeReviews GROUP BY id")
       .createOrReplaceTempView("reviewsCollectedById")
-    recipeReviews.foreach(collectedReview => {
-      println(s"CollectedReview $collectedReview")
-    })
-    sql("select * from recipe right outer join reviewsCollectedById on recipe.id = reviewsCollectedById.id")
+    sql("select * from recipe left outer join reviewsCollectedById on recipe.id = reviewsCollectedById.id")
   }
 
 }

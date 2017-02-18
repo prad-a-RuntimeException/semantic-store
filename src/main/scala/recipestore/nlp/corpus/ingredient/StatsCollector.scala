@@ -29,6 +29,7 @@ object StatsCollector {
 
   def main(args: Array[String]): Unit = {
     val score = ingredientSubstitutionScore()
+
   }
 
   //Weight ingredient based on tf/idf
@@ -50,11 +51,12 @@ object StatsCollector {
     val numDocs = ingredientStatsCollector.numDocs()
 
     (1 to (numDocs.toInt - 1))
-      .map(i => (ingredientStatsCollector.getFieldValue(i, "id"), ingredientStatsCollector.getFieldValue(i, "reviews")))
+      .map(i => (ingredientStatsCollector.getFieldValue(i, "id"), ingredientStatsCollector.getFieldValues(i, "reviews")))
       .filter(v => v._2 != null)
       .foreach(v => {
-        meter.poke
-        println(v)
+        v._2.foreach(review => {
+          meter.poke
+        })
       })
 
     println(meter.status)
@@ -77,6 +79,7 @@ object StatsCollector {
     }
 
     //Create inverted index, so that we do not have to loop through every other recipe (quadratic)
+
     (1 to (numDocs.toInt - 1))
       .map(i => (ingredientStatsCollector.getFieldValue(i, "name"),
         ingredientStatsCollector.getFieldValue(i, "id"),
@@ -171,8 +174,8 @@ object StatsCollector {
     val ingredientCount = ingredients.map(term => (term.termtext.utf8ToString(), term.docFreq)).toMap
 
     def calculatePmi(t: ((String, String), Int), ingredientCount: Map[String, Int]) = {
-      val pOfAAnB: Double = t._2.toDouble /
-        (ingredientCount(t._1._1).toDouble * ingredientCount(t._1._2).toDouble)
+      val pOfAAnB: Double = Math.log(t._2.toDouble /
+        (ingredientCount(t._1._1).toDouble * ingredientCount(t._1._2).toDouble))
       new IngredientComplementDistance(t._1._1, t._1._2, pOfAAnB)
     }
 
@@ -229,6 +232,10 @@ class StatsCollector @Inject()(val luceneSearchApi: LuceneSearchApi) {
 
   def getFieldValue(id: Int, fieldName: String): Any = {
     doc(id).get(fieldName)
+  }
+
+  def getFieldValues(id: Int, fieldName: String): Iterable[String] = {
+    doc(id).getFields(fieldName).map(f => f.stringValue())
   }
 
 }
