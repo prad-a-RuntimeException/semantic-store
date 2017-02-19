@@ -1,7 +1,5 @@
 package recipestore.nlp.lucene
 
-import javax.inject.Inject
-
 import org.apache.lucene.analysis.Analyzer
 import org.apache.lucene.index.{DirectoryReader, Terms}
 import org.apache.lucene.misc.{HighFreqTerms, TermStats}
@@ -11,7 +9,7 @@ import org.apache.lucene.search.{IndexSearcher, TopDocs}
 import scala.collection.JavaConverters._
 import scala.collection.immutable.IndexedSeq
 
-class LuceneSearchApi @Inject()(val luceneDAO: LuceneDAO, val analyzer: Analyzer) {
+protected class LuceneSearchApi(val luceneDAO: LuceneDAO, val analyzer: Analyzer) {
   lazy val indexReader = DirectoryReader.open(luceneDAO.index)
   lazy val indexSearcher = new IndexSearcher(indexReader)
 

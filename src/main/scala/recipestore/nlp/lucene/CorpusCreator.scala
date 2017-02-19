@@ -18,7 +18,7 @@ object CorpusCreator {
 
   private def createRecipeIngredientCorpus = {
     val factory = () => {
-      val graphModule = Guice.createInjector(new NlpModule(indexDir = ingredientIndexDir, createNewIndex = true))
+      val graphModule = Guice.createInjector(new NlpModule(indexDir = ingredientIndexDir))
       graphModule.getInstance(classOf[IngredientCorpusFactory])
     }
     _createRecipeCorpus(() => {
@@ -29,7 +29,7 @@ object CorpusCreator {
   }
 
   def createWordnetCorpus(): LuceneSearchApi = {
-    val nlpModule = Guice.createInjector(new NlpModule(indexDir = NlpModule.wordnetIndexDir, createNewIndex = true))
+    val nlpModule = Guice.createInjector(new NlpModule(indexDir = NlpModule.wordnetIndexDir))
     val luceneWriteApi = nlpModule.getInstance(classOf[LuceneWriteApi])
     val wordnetCorpusFactory = nlpModule.getInstance(classOf[WordnetCorpusFactory])
     luceneWriteApi.write(wordnetCorpusFactory.document)

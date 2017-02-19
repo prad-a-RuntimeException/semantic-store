@@ -1,4 +1,4 @@
-package recipestore.nlp
+package recipestore.nlp.lucene
 
 import com.github.javafaker.Faker
 import com.google.inject.{Guice, Injector}
@@ -6,7 +6,7 @@ import org.apache.lucene.analysis.standard.StandardAnalyzer
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{BeforeAndAfter, FunSuite, Matchers}
-import recipestore.nlp.lucene.{LuceneSearchApi, LuceneWriteApi}
+import recipestore.nlp.NlpModule
 
 import scala.collection.immutable.IndexedSeq
 
@@ -14,6 +14,7 @@ import scala.collection.immutable.IndexedSeq
 class LuceneDAOIntegrationTest extends FunSuite with Matchers with BeforeAndAfter {
 
 
+  var luceneDAO: LuceneDAO = _
   var searchApi: LuceneSearchApi = _
   var writeApi: LuceneWriteApi = _
 
@@ -31,8 +32,9 @@ class LuceneDAOIntegrationTest extends FunSuite with Matchers with BeforeAndAfte
 
   before {
     val luceneModule: Injector = Guice.createInjector(new NlpModule("test", new StandardAnalyzer()))
-    searchApi = luceneModule.getInstance(classOf[LuceneSearchApi])
-    writeApi = luceneModule.getInstance(classOf[LuceneWriteApi])
+    luceneDAO = luceneModule.getInstance(classOf[LuceneDAO])
+    searchApi = luceneDAO.luceneSearchAPi
+    writeApi = luceneDAO.luceneWriteApi
     writeApi.write(testVals)
   }
 

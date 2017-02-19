@@ -3,11 +3,9 @@ plugins {
     id 'groovy'
     id 'scala'
     id 'idea'
-    id "jacoco"
     id 'net.ltgt.apt' version "0.9"
 }
 
-apply plugin: "jacoco"
 apply from: rootProject.file('gradle/install-git-hooks.gradle')
 
 group 'recipe-semantic-store'

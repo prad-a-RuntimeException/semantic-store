@@ -11,9 +11,10 @@ import recipestore.metrics.MeterWrapper
 import recipestore.metrics.MetricsFactory._
 import recipestore.misc.CrossProduct.Cross
 import recipestore.nlp.NlpModule
-import recipestore.nlp.lucene.LuceneSearchApi
+import recipestore.nlp.lucene.LuceneDAO
 
 import scala.collection.JavaConverters._
+import scala.collection.immutable.Seq
 import scala.collection.mutable
 
 
@@ -45,23 +46,40 @@ object StatsCollector {
     weightedIngredientVector
   }
 
-  def ingredientSubstitutionScore(): Unit = {
+  def ingredientSubstitutionScore(): Map[IngredientSubstitution, Double] = {
 
     val meter = get("IngredientSubstitution", classOf[MeterWrapper])
     val numDocs = ingredientStatsCollector.numDocs()
 
-    (1 to (numDocs.toInt - 1))
+    val ingredientCountMap: Map[String, Int] = ingredients.map(term => (term.termtext.utf8ToString(), term.docFreq))
+      .toMap
+
+    val ingredientSubstitution: Iterable[(String, Iterable[IngredientSubstitution])] = (1 to (numDocs.toInt - 1))
       .map(i => (ingredientStatsCollector.getFieldValue(i, "id"), ingredientStatsCollector.getFieldValues(i, "reviews")))
       .filter(v => v._2 != null)
-      .foreach(v => {
-        v._2.foreach(review => {
+      .flatMap(v => {
+        v._2.map(review => {
           meter.poke
+          (v._1.toString, RecipeReviewParser(review))
         })
       })
 
-    println(meter.status)
     remove("IngredientSubstitution", classOf[MeterWrapper])
 
+    ingredientSubstitution
+      .flatMap(ing => ing._2)
+      .groupBy(s => s)
+      .map(g => (g._1, g._2.size))
+      .map(g => {
+        if (ingredientCountMap.getOrElse(g._1.ingredient1, 0) > 0) {
+          val directionalPmi = Math.log(g._2.toDouble / ingredientCountMap.get(g._1.ingredient1).get.toDouble)
+          (g._1, directionalPmi)
+        }
+        else {
+          null
+        }
+      })
+      .filter(_ != null)
 
   }
 
@@ -143,32 +161,30 @@ object StatsCollector {
     override def toString = s"IngredientComplementDistance($ing1, $ing2, $distance)"
   }
 
+  //Order agnostic tuple
+  class Pair(val first: String, val second: String) {
+    private val values = Set(first, second)
+
+    def canEqual(other: Any): Boolean = other.isInstanceOf[Pair]
+
+    override def equals(other: Any): Boolean = other match {
+      case that: Pair =>
+        (that canEqual this) &&
+          values == that.values
+      case _ => false
+    }
+
+    override def hashCode(): Int = {
+      val state = Seq(values)
+      state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
+    }
+  }
+
 
   def ingredientComplementScore(): Iterable[IngredientComplementDistance] = {
 
     val meter = get("ComplementScore", classOf[MeterWrapper])
     val numDocs = ingredientStatsCollector.numDocs()
-
-
-    //Order agnostic tuple
-    class Pair(val first: String, val second: String) {
-      private val values = Set(first, second)
-
-      def canEqual(other: Any): Boolean = other.isInstanceOf[Pair]
-
-      override def equals(other: Any): Boolean = other match {
-        case that: Pair =>
-          (that canEqual this) &&
-            values == that.values
-        case _ => false
-      }
-
-      override def hashCode(): Int = {
-        val state = Seq(values)
-        state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
-      }
-    }
-
 
 
     val ingredientCount = ingredients.map(term => (term.termtext.utf8ToString(), term.docFreq)).toMap
@@ -212,7 +228,9 @@ object StatsCollector {
   }
 }
 
-class StatsCollector @Inject()(val luceneSearchApi: LuceneSearchApi) {
+class StatsCollector @Inject()(val luceneDAO: LuceneDAO) {
+
+  val luceneSearchApi = luceneDAO.luceneSearchAPi
 
   def getIngredientsByFrequency(numTerms: Int, fieldName: String): Array[TermStats] = {
     luceneSearchApi.topFrequencyWords(numTerms, fieldName)
