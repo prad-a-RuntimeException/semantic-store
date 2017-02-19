@@ -6,6 +6,7 @@ import edu.stanford.nlp.ling.CoreLabel
 import edu.stanford.nlp.ling.tokensregex.{MultiPatternMatcher, SequenceMatchResult, TokenSequencePattern}
 import edu.stanford.nlp.util.CoreMap
 import recipestore.nlp.NlpPipeline
+import recipestore.nlp.corpus.ingredient.stats.models.IngredientSubstitution
 
 import scala.collection.JavaConverters._
 

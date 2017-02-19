@@ -1,4 +1,4 @@
-package recipestore.nlp.corpus.ingredient
+package recipestore.nlp.corpus.ingredient.stats.models
 
 class IngredientSubstitution(val inputText: String, val ingredient1: String,
                              val ingredient2: String) {
