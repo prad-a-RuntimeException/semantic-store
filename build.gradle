@@ -15,12 +15,12 @@ sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 
-test {
-    // set heap size for the test JVM(s)
-    minHeapSize = "512m"
-    maxHeapSize = "1g"
-    maxParallelForks = 4
-}
+//test {
+//    // set heap size for the test JVM(s)
+//    minHeapSize = "512m"
+//    maxHeapSize = "1g"
+//    maxParallelForks = 4
+//}
 
 
 repositories {
