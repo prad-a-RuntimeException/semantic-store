@@ -20,7 +20,7 @@ object NlpModule {
   val ingredientIndexDir = "ingredient"
 
   def getLuceneDAO(indexDir: String, analyzer: Analyzer): LuceneDAO = {
-    return new LuceneDAO(indexDir, analyzer, true)
+    return new LuceneDAO(indexDir, analyzer)
   }
 
   private val luceneDAOCache = MapCache.empty[(String, Analyzer), LuceneDAO].toMutable()

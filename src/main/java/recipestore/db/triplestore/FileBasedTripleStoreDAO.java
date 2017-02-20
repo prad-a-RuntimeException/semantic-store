@@ -3,7 +3,7 @@ package recipestore.db.triplestore;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import org.apache.commons.io.FileUtils;
-import org.apache.jena.query.Dataset;
+import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Resource;
@@ -12,6 +12,8 @@ import org.apache.jena.riot.system.StreamRDF;
 import org.apache.jena.sparql.core.DatasetGraph;
 import org.apache.jena.sparql.core.Quad;
 import org.apache.jena.util.iterator.ExtendedIterator;
+import org.jooq.lambda.Seq;
+import org.jooq.lambda.tuple.Tuple2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import recipestore.db.triplestore.rdfparsers.CustomRDFDataMgr;
@@ -22,10 +24,14 @@ import javax.inject.Named;
 import java.io.File;
 import java.io.InputStream;
 import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.lang.String.format;
 import static org.apache.jena.tdb.TDBFactory.createDataset;
@@ -91,6 +97,24 @@ public class FileBasedTripleStoreDAO implements TripleStoreDAO {
         }
     }
 
+    @Override
+    public Stream<Map<String, RDFNode>> runQuery(final String sparqlQuery, Set<String> variables) {
+
+        final Query query = QueryFactory.create(sparqlQuery);
+        QueryExecution queryExecution = QueryExecutionFactory.create(query, getDataset());
+        final ResultSet resultSet = queryExecution.execSelect();
+        try {
+            return Seq.seq(resultSet)
+                    .map(querySolution -> variables.stream()
+                            .map(varName -> new Tuple2<>(varName, querySolution.get(varName)))
+                            .collect(Collectors.toMap(tup -> tup.v1(), tup -> tup.v2())));
+        } catch (Exception e) {
+            LOGGER.warn("Failed to run sparql query ", e);
+            return Seq.of();
+        }
+
+    }
+
     private Predicate<RDFNode> isRecipeResource = (rdfNode) ->
             rdfNode != null &&
                     rdfNode.isResource() &&
@@ -121,6 +145,7 @@ public class FileBasedTripleStoreDAO implements TripleStoreDAO {
         if (clearFileSystem)
             FileUtils.deleteDirectory(new File(getFileLocation.apply(this.datasetName)));
     }
+
 
     @Override
     public Iterator<Resource> getResource(String resourceUri) {

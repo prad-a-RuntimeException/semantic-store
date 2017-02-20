@@ -7,6 +7,7 @@ import recipestore.db.triplestore.TripleStoreDAO;
 
 import javax.inject.Inject;
 import java.io.InputStream;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 public class RecipeApi {
@@ -29,6 +30,10 @@ public class RecipeApi {
 
     public Stream<Resource> getRecipeData() {
         return Seq.seq(tripleStoreDAO.getResource("http://schema.org/Recipe"));
+    }
+
+    public Stream<Resource> getRecipeData(Predicate<Resource> resourceFilter) {
+        return getRecipeData().filter(resourceFilter);
     }
 
 }

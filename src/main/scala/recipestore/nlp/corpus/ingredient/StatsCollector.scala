@@ -2,21 +2,37 @@ package recipestore.nlp.corpus.ingredient
 
 import javax.inject.Inject
 
-import com.google.inject.Guice
+import com.google.inject.Guice.createInjector
 import org.apache.lucene.document.Document
 import org.apache.lucene.index.Terms
 import org.apache.lucene.misc.TermStats
 import recipestore.nlp.NlpModule
+import recipestore.nlp.corpus.ingredient.stats.IngredientComplementDistance
 import recipestore.nlp.lucene.LuceneDAO
 
 import scala.collection.mutable
 
 
 object StatsCollector {
-  val recipeNlpModule = Guice.createInjector(new NlpModule(NlpModule.ingredientIndexDir))
-  val wordnetNlpModule = Guice.createInjector(new NlpModule(NlpModule.wordnetIndexDir))
-  val ingredientStatsCollector = recipeNlpModule.getInstance(classOf[StatsCollector])
-  val wordnetStatsCollector = wordnetNlpModule.getInstance(classOf[StatsCollector])
+  private def nlpModule = (indexDir: String) => new NlpModule(indexDir)
+
+  def main(args: Array[String]): Unit = {
+    IngredientComplementDistance().foreach(println(_))
+  }
+
+  val module = (indexDir: String) => createInjector(nlpModule(indexDir)).getInstance(classOf[StatsCollector])
+  val ingredientStatsCollector = module(NlpModule.ingredientIndexDir)
+  val wordnetStatsCollector = module(NlpModule.wordnetIndexDir)
+  lazy val ingredients: Array[TermStats] = {
+    val termsInRecipeIngredients = ingredientStatsCollector.getIngredientsByFrequency(10000, "ingredients")
+    val ingredientsFromControlledVocabulary = wordnetStatsCollector.getIngredientsByFrequency(10000, "synonyms")
+      .map(term => term.termtext.utf8ToString())
+      .toSet
+
+    termsInRecipeIngredients
+      .filter(term => ingredientsFromControlledVocabulary.contains(term.termtext.utf8ToString()))
+      .filter(term => term.docFreq > 10)
+  }
   lazy val topIngredients: Set[String] = ingredients.map(term => term.termtext.utf8ToString()).toSet
   lazy val indexedIngredient: Map[String, Int] = topIngredients.zipWithIndex.map(tup => (tup._1, tup._2)).toMap
   val numDocs = ingredientStatsCollector.numDocs().toDouble
@@ -60,17 +76,7 @@ object StatsCollector {
     }
   }
 
-  lazy val ingredients: Array[TermStats] = {
 
-    val termsInRecipeIngredients = ingredientStatsCollector.getIngredientsByFrequency(10000, "ingredients")
-    val ingredientsFromControlledVocabulary = wordnetStatsCollector.getIngredientsByFrequency(10000, "synonyms")
-      .map(term => term.termtext.utf8ToString())
-      .toSet
-
-    termsInRecipeIngredients
-      .filter(term => ingredientsFromControlledVocabulary.contains(term.termtext.utf8ToString()))
-      .filter(term => term.docFreq > 10)
-  }
 }
 
 class StatsCollector @Inject()(val luceneDAO: LuceneDAO) {

@@ -7,7 +7,8 @@ import com.google.inject.Guice
 import org.apache.jena.rdf.model.Resource
 import org.apache.spark.sql.SaveMode
 import org.graphframes.GraphFrame
-import recipestore.input.RecipeApi
+import org.slf4j.{Logger, LoggerFactory}
+import recipestore.input.{RecipeApi, RecipeResourceFilter}
 
 import scala.collection.JavaConverters._
 import scala.language.postfixOps
@@ -25,15 +26,16 @@ object GraphCreator {
 
 class GraphCreator @Inject()(val recipeApi: RecipeApi, @Named("graphDirectory") val graphDirectory: String) {
 
+  val LOGGER: Logger = LoggerFactory.getLogger(classOf[GraphCreator])
 
   def load(limit: Int): GraphFrame = {
-    val data: Stream[Resource] = recipeApi.getRecipeData
+    val data: Stream[Resource] = recipeApi.getRecipeData(RecipeResourceFilter.getRecipeWithMinimumNumberOfRating)
     PropertyGraphFactory.createGraph(data.iterator().asScala.toStream, limit)
   }
 
   def write(limit: Int): Unit = {
-
     val graph = load(limit)
+    LOGGER.info("Started writing data")
     graph.vertices.write.mode(SaveMode.Overwrite).parquet(s"$graphDirectory/vertices")
     graph.edges.write.mode(SaveMode.Overwrite).parquet(s"$graphDirectory/edges")
   }

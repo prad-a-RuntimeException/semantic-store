@@ -1,0 +1,9 @@
+PREFIX schema: <http://schema.org/>
+PREFIX recipe: <http://schema.org/Recipe>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+SELECT ?r
+{?r rdf:type schema:Recipe .
+?r recipe:aggregateRating ?rating .
+?rating  <http://schema.org/AggregateRating/reviewCount> ?ratingCount .
+FILTER (?ratingCount > 10)
+}

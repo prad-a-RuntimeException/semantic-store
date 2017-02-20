@@ -17,7 +17,6 @@ class WordnetApiTest extends FunSuite with Matchers {
       new WordnetApi(Resources.getResource("wordnet.fn").openStream())
         .getWordnetFoodData
 
-
     wordnetData should contain key "onion"
 
     wordnetData.getOrElse("onion", null).children should contain allOf("Bermuda_onion", "spring_onion", "scallion")

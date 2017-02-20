@@ -4,6 +4,7 @@ import recipestore.metrics.MeterWrapper
 import recipestore.metrics.MetricsFactory.{get, remove}
 import recipestore.misc.CrossProduct.Cross
 import recipestore.nlp.corpus.ingredient.StatsCollector
+import recipestore.nlp.corpus.ingredient.StatsCollector.{allowOnlyTopIngredients, getTermsForField}
 import recipestore.nlp.corpus.ingredient.stats.models.IngredientComplementDistance
 
 object IngredientComplementDistance {
@@ -24,7 +25,8 @@ object IngredientComplementDistance {
 
 
     val complementDistance = (1 to (numDocs.toInt - 1))
-      .map(i => StatsCollector.allowOnlyTopIngredients(StatsCollector.getTermsForField(i, "ingredients")))
+      .par
+      .map(i => allowOnlyTopIngredients(getTermsForField(i, "ingredients")))
       .flatMap(i => i.cross(i).filterNot(f => f._1.contains(f._2) || (f._2.contains(f._1)))
         .map(i => {
           meter.poke
@@ -32,8 +34,7 @@ object IngredientComplementDistance {
         })
         .toSeq.distinct)
       .groupBy(pair => pair)
-      .map(pair => Map((pair._1.first, pair._1.second) -> pair._2.size))
-      .flatten
+      .map(pair => (pair._1.first, pair._1.second) -> pair._2.size)
       .map(t => calculatePmi(t, ingredientCount))
       .toList.sorted
 

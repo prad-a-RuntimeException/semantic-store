@@ -68,6 +68,7 @@ object PropertyGraphFactory {
       })
       .filter(_ != null)
       .reduce((mem, curr) => mergeColumns(mem, curr))
+    LOGGER.info("Done loading vertex ")
 
     MetricsFactory.remove("VertexMeter", classOf[MeterWrapper])
 
@@ -75,6 +76,7 @@ object PropertyGraphFactory {
       .flatMap(_._2)
 
     MetricsFactory.remove("CreatePropertyGraph", classOf[MeterWrapper])
+    LOGGER.info("Done loading edge ")
     GraphFrame(verticesDF, sqlContext.createDataFrame(edgesDF.toList.asJava, edgeSchema))
   }
 

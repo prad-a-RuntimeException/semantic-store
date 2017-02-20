@@ -17,23 +17,29 @@ object CorpusCreator {
   }
 
   private def createRecipeIngredientCorpus = {
-    val factory = () => {
+
+    val ingredientCorpusFactory = () => {
       val graphModule = Guice.createInjector(new NlpModule(indexDir = ingredientIndexDir))
       graphModule.getInstance(classOf[IngredientCorpusFactory])
     }
-    _createRecipeCorpus(() => {
-      factory.apply().datasets
+    val luceneWriterApi = () => {
+      val graphModule = Guice.createInjector(new NlpModule(indexDir = ingredientIndexDir))
+      graphModule.getInstance(classOf[LuceneDAO]).luceneWriteApi
     }
-      , () => factory.apply().analyzer,
+    _createRecipeCorpus(() => {
+      ingredientCorpusFactory().datasets
+    },
+      () => ingredientCorpusFactory().analyzer,
+      () => luceneWriterApi(),
       ingredientIndexDir)
   }
 
-  def createWordnetCorpus(): LuceneSearchApi = {
+  private def createWordnetCorpus(): LuceneSearchApi = {
     val nlpModule = Guice.createInjector(new NlpModule(indexDir = NlpModule.wordnetIndexDir))
-    val luceneWriteApi = nlpModule.getInstance(classOf[LuceneWriteApi])
+    val luceneWriteApi = nlpModule.getInstance(classOf[LuceneDAO]).luceneWriteApi
     val wordnetCorpusFactory = nlpModule.getInstance(classOf[WordnetCorpusFactory])
     luceneWriteApi.write(wordnetCorpusFactory.document)
-    nlpModule.getInstance(classOf[LuceneSearchApi])
+    nlpModule.getInstance(classOf[LuceneDAO]).luceneSearchAPi
   }
 
 
@@ -45,25 +51,14 @@ object CorpusCreator {
     * @param analyzer
     * @param indexDir
     */
-  def _createRecipeCorpus(recipeVertices: () => DataFrame, analyzer: () => Analyzer, indexDir: String) = {
-    def getLuceneWriterApi = {
-      val nlpModule = Guice.createInjector(new NlpModule(indexDir))
-      val luceneWriteApi = nlpModule.getInstance(classOf[LuceneWriteApi])
-      luceneWriteApi
-    }
-
-    def writeRow(valuesMap: Map[String, Nothing]) = {
-      val luceneWriteApi = getLuceneWriterApi
-      luceneWriteApi.write(valuesMap)
-    }
-
+  def _createRecipeCorpus(recipeVertices: () => DataFrame, analyzer: () => Analyzer, luceneWriteApi: () => LuceneWriter, indexDir: String) = {
 
     val recipeDF = recipeVertices()
     val accumulator = recipeDF.sparkSession.sparkContext.longAccumulator("RecipeIndexLoaderCount")
     recipeDF
       .repartition(1)
       .foreachPartition(partition => {
-        val writerApi = getLuceneWriterApi
+        val writerApi = luceneWriteApi()
         partition.foreach(row => {
           if (accumulator.value % 1000 == 0) {
             println(s"Done with $accumulator.value records")

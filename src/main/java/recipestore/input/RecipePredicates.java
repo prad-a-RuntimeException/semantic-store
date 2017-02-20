@@ -9,10 +9,17 @@ public class RecipePredicates {
 
     public static final List<String> RECIPE_URL_FILTER =
             newArrayList(
-                    "epicurious.com",
-                    "nytimes",
                     "allrecipes.com",
-                    "allrecipes.co.uk"
+                    "foodnetwork.com",
+                    "thekitchn.com",
+                    "yummly.com",
+                    "chow.com",
+                    "epicurious.com",
+                    "simplyrecipes.com",
+                    "food.com",
+                    "bettycrocker.com",
+                    "cookinglight.com"
+
             );
 
 

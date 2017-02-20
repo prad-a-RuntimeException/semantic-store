@@ -16,7 +16,7 @@ class LuceneDAOIntegrationTest extends FunSuite with Matchers with BeforeAndAfte
 
   var luceneDAO: LuceneDAO = _
   var searchApi: LuceneSearchApi = _
-  var writeApi: LuceneWriteApi = _
+  var writeApi: LuceneWriter = _
 
   val faker: Faker = new Faker()
 

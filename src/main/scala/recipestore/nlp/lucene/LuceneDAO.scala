@@ -10,20 +10,20 @@ import org.apache.lucene.store.FSDirectory.open
 
 class LuceneDAO(val indexDir: String, val analyzer: Analyzer, val createNew: Boolean = false) {
   val index: FSDirectory = {
-    val file = new File(indexDir)
-    if (createNew) {
-      FileUtils.deleteQuietly(file)
-    }
-    if (!file.exists()) {
-      FileUtils.forceMkdir(file)
-    }
+    createIndex(createNew)
+  }
 
+  def createIndex(createNew: Boolean): FSDirectory = {
+    val file = new File(indexDir)
+    if (createNew)
+      FileUtils.deleteQuietly(file)
+    FileUtils.forceMkdir(file)
     open(get(indexDir))
   }
 
   def close = index.close()
 
-  def luceneWriteApi: LuceneWriteApi = new LuceneWriteApi(this, analyzer)
+  def luceneWriteApi: LuceneWriter = new LuceneWriter(this, analyzer)
 
   def luceneSearchAPi: LuceneSearchApi = new LuceneSearchApi(this, analyzer)
 

@@ -6,8 +6,8 @@ import org.apache.lucene.document.{Document, Field, FieldType}
 import org.apache.lucene.index.{IndexOptions, IndexWriter, IndexWriterConfig}
 import org.slf4j.{Logger, LoggerFactory}
 
-protected class LuceneWriteApi(luceneDAO: LuceneDAO, val analyzer: Analyzer) {
-  val logger: Logger = LoggerFactory.getLogger(classOf[LuceneWriteApi])
+protected class LuceneWriter(luceneDAO: LuceneDAO, val analyzer: Analyzer) {
+  val logger: Logger = LoggerFactory.getLogger(classOf[LuceneWriter])
   val conf = new IndexWriterConfig(analyzer)
   conf.setRAMBufferSizeMB(1024)
   val indexWriter = try {
