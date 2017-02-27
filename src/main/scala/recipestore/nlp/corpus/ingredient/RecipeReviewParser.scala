@@ -6,7 +6,6 @@ import edu.stanford.nlp.ling.CoreLabel
 import edu.stanford.nlp.ling.tokensregex.{MultiPatternMatcher, SequenceMatchResult, TokenSequencePattern}
 import edu.stanford.nlp.util.CoreMap
 import recipestore.nlp.NlpPipeline
-import recipestore.nlp.corpus.ingredient.stats.models.IngredientSubstitution
 
 import scala.collection.JavaConverters._
 
@@ -22,7 +21,7 @@ object RecipeReviewParser {
   }
 
 
-  def apply(input: String): Iterable[IngredientSubstitution] = {
+  def apply(input: String): Iterable[(String, String)] = {
 
     val tokenList: Iterable[CoreLabel] = NlpPipeline(input)
     val multiMatcher: MultiPatternMatcher[CoreMap] = substitutionPattern
@@ -33,7 +32,7 @@ object RecipeReviewParser {
       val ing1 = matcher.group("$ing1")
       val ing2 = matcher.group("$ing2")
       if (ing1 != null && ing2 != null)
-        new IngredientSubstitution(input, ing1, ing2)
+        (ing1, ing2)
       else null
     }).filter(_ != null)
   }

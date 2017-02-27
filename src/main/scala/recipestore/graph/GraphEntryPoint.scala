@@ -8,6 +8,7 @@ import org.apache.jena.rdf.model.Resource
 import org.apache.spark.sql.SaveMode
 import org.graphframes.GraphFrame
 import org.slf4j.{Logger, LoggerFactory}
+import recipestore.input.RecipeResourceFilter.getRecipeWithMinimumNumberOfRating
 import recipestore.input.{RecipeApi, RecipeResourceFilter}
 
 import scala.collection.JavaConverters._
@@ -29,7 +30,7 @@ class GraphCreator @Inject()(val recipeApi: RecipeApi, @Named("graphDirectory") 
   val LOGGER: Logger = LoggerFactory.getLogger(classOf[GraphCreator])
 
   def load(limit: Int): GraphFrame = {
-    val data: Stream[Resource] = recipeApi.getRecipeData(RecipeResourceFilter.getRecipeWithMinimumNumberOfRating)
+    val data: Stream[Resource] = recipeApi.getRecipeData(getRecipeWithMinimumNumberOfRating)
     PropertyGraphFactory.createGraph(data.iterator().asScala.toStream, limit)
   }
 
@@ -39,5 +40,6 @@ class GraphCreator @Inject()(val recipeApi: RecipeApi, @Named("graphDirectory") 
     graph.vertices.write.mode(SaveMode.Overwrite).parquet(s"$graphDirectory/vertices")
     graph.edges.write.mode(SaveMode.Overwrite).parquet(s"$graphDirectory/edges")
   }
+
 
 }

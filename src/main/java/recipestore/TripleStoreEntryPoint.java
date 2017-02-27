@@ -9,7 +9,6 @@ class TripleStoreEntryPoint {
 
     public static Injector inputModule = Guice.createInjector(new InputModule());
 
-
     public static void main(String[] args) {
         loadRecipeData();
     }

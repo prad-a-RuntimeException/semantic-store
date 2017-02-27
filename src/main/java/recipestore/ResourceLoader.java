@@ -23,7 +23,7 @@ public class ResourceLoader {
 
     @RequiredArgsConstructor
     public enum Resource {
-        triplestore("triplestore"), graph("graph"), lucene("lucene");
+        triplestore("triplestore"), graph("graph"), lucene("lucene"), tinkerpop("tinkerpop");
         private final String resourceName;
 
         @Override

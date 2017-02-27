@@ -30,7 +30,9 @@ object NlpModule {
 
 class NlpModule(indexDir: String) extends GraphModule with ScalaModule {
 
-  final lazy val baseDir: String = ResourceLoader.get.apply(ResourceLoader.Resource.lucene, "index-dir").toOption.getOrElse("")
+  final lazy val baseDir: String = ResourceLoader.get
+    .apply(ResourceLoader.Resource.lucene, "index-dir")
+    .toOption.getOrElse("")
   var analyzer: Analyzer = null
   final val wordnetStream: InputStream = Resources.getResource("wordnet.fn").openStream()
 

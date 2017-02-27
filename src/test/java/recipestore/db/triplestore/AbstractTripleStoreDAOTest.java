@@ -21,7 +21,7 @@ public abstract class AbstractTripleStoreDAOTest {
         final List<Resource> statements = Seq.seq(getTripleStoreDAO().getResource("http://schema.org/Recipe")).toList();
         assertThat("Should have statements in triplestore", statements.size() > 0, Matchers.equalTo(true));
 
-        assertThat("Should get all the recipe statements ", statements.size(), greaterThan(50));
+        assertThat("Should get all the recipe statements ", statements.size(), greaterThan(10));
 
     }
 

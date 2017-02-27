@@ -17,7 +17,7 @@ import scala.collection.immutable.{Iterable, Seq}
 import scala.collection.mutable
 
 
-object PropertyGraphFactory {
+object PropertyGraphFactory extends SparkFactory {
 
 
   val LOGGER: Logger = LoggerFactory.getLogger(PropertyGraphFactory.getClass)
@@ -28,15 +28,6 @@ object PropertyGraphFactory {
   val memoizedCreateVertexFunction = Memoize(vertexCache)(createVertices)
   private val schemaCache: MutableCache[String, StructType] =
     empty[String, StructType].toMutable()
-  val sparkSession: SparkSession = SparkSession.builder()
-    .appName("GraphFactory")
-    .master("local")
-    .config("spark.driver.memory", "2g")
-    .config("spark.executor.memory", "4g")
-    .config("SPARK_CONF_DIR", "./infrastructure/spark-config")
-    .getOrCreate()
-  val sqlContext: SQLContext = sparkSession.sqlContext
-
   val edgeSchema: StructType = StructType(Array("src", "dst", "relationship")
     .map(edgeVal => StructField.apply(edgeVal, StringType)))
 
