@@ -12,7 +12,6 @@ import scala.collection.JavaConverters._
 import scala.collection.mutable
 
 
-@RunWith(classOf[JUnitRunner])
 class PropertyGraphFactory$Test extends FunSuite with Matchers {
 
 
