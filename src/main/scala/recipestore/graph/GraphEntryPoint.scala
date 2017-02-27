@@ -1,6 +1,5 @@
 package recipestore.graph
 
-import java.util.stream.Stream
 import javax.inject.{Inject, Named}
 
 import com.google.inject.Guice
@@ -8,10 +7,9 @@ import org.apache.jena.rdf.model.Resource
 import org.apache.spark.sql.SaveMode
 import org.graphframes.GraphFrame
 import org.slf4j.{Logger, LoggerFactory}
+import recipestore.input.RecipeApi
 import recipestore.input.RecipeResourceFilter.getRecipeWithMinimumNumberOfRating
-import recipestore.input.{RecipeApi, RecipeResourceFilter}
 
-import scala.collection.JavaConverters._
 import scala.language.postfixOps
 
 
@@ -30,8 +28,8 @@ class GraphCreator @Inject()(val recipeApi: RecipeApi, @Named("graphDirectory") 
   val LOGGER: Logger = LoggerFactory.getLogger(classOf[GraphCreator])
 
   def load(limit: Int): GraphFrame = {
-    val data: Stream[Resource] = recipeApi.getRecipeData(getRecipeWithMinimumNumberOfRating)
-    PropertyGraphFactory.createGraph(data.iterator().asScala.toStream, limit)
+    val data: Seq[Resource] = recipeApi.getRecipeData(getRecipeWithMinimumNumberOfRating)
+    PropertyGraphFactory.createGraph(data.toStream, limit)
   }
 
   def write(limit: Int): Unit = {

@@ -1,11 +1,11 @@
 package recipestore.nlp
 
 import edu.stanford.nlp.ling.{CoreAnnotation, CoreAnnotations}
-import org.junit.runner.RunWith
+
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{FunSuite, Matchers}
 
-@RunWith(classOf[JUnitRunner])
+
 class NlpPipeline$Test extends FunSuite with Matchers {
 
   test("Should split input text to tokens encapsulating (including ner and pos)") {

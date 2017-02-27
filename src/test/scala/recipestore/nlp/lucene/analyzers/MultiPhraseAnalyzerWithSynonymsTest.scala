@@ -3,13 +3,13 @@ package recipestore.nlp.lucene.analyzers
 import java.io.StringReader
 
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute
-import org.junit.runner.RunWith
+
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{FunSuite, Matchers}
 
 import scala.collection.mutable
 
-@RunWith(classOf[JUnitRunner])
+
 class MultiPhraseAnalyzerWithSynonymsTest extends FunSuite with Matchers {
   test("Should only match fullterms") {
     val synonymFiles = Map[String, Set[String]]()

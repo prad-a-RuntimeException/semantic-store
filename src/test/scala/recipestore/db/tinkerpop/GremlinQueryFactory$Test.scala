@@ -12,7 +12,7 @@ class GremlinQueryFactory$Test extends org.scalatest.FunSuite with Matchers {
     val propertyMap = Map("Key1" -> "Value1")
     val addVertexScript = GremlinQueryFactory.addVertexScript(vertexLabel, propertyMap)
 
-    addVertexScript should equal(s"g.addV(label,'$vertexLabel','Key1', Value1)")
+    addVertexScript should be equals (s"g.addV(label,'$vertexLabel','Key1', Value1)")
   }
 
   test("Should create valid vertex creation query without any parameter") {
@@ -20,7 +20,7 @@ class GremlinQueryFactory$Test extends org.scalatest.FunSuite with Matchers {
     val propertyMap = null
     val addVertexScript = GremlinQueryFactory.addVertexScript(vertexLabel, propertyMap)
 
-    addVertexScript should equal(s"g.addV(label,'$vertexLabel')")
+    addVertexScript should be equals(s"g.addV(label,'$vertexLabel')")
   }
 
   test("Should create valid edge creation query") {
@@ -28,7 +28,7 @@ class GremlinQueryFactory$Test extends org.scalatest.FunSuite with Matchers {
     val propertyMap = Map("Key1" -> "Value1")
     val addEdgeScript = GremlinQueryFactory.addEdgeScript(edgeLabel, propertyMap)
 
-    addEdgeScript should equal(s"def v1 = g.V(id1).next() def v2 = g.V(id2).next() v1.addEdge('$edgeLabel', v2, List())")
+    addEdgeScript should be equals(s"def v1 = g.V(id1).next() def v2 = g.V(id2).next() v1.addEdge('$edgeLabel', v2, List())")
   }
 
 }

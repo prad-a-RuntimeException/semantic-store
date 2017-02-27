@@ -5,7 +5,7 @@ import recipestore.db.tinkerpop.DseGraphDAO
 
 class DseGraphDAOTest extends FunSuite with Matchers {
 
-  test("Should be able to open connection to local dse") {
+  ignore("Should be able to open connection to local dse") {
     val graphDAO = new DseGraphDAO("local", "Recipe", false)
 
     val session = graphDAO.session

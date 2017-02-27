@@ -6,10 +6,8 @@ import com.datastax.driver.dse.{DseCluster, DseSession}
 import com.google.common.collect.Maps
 import com.twitter.storehaus.cache.{MapCache, Memoize, MutableCache}
 import org.slf4j.{Logger, LoggerFactory}
-import recipestore.ResourceLoader
-import recipestore.ResourceLoader.{Resource, get}
-import recipestore.misc.OptionConvertors._
 import recipestore.misc.RichListenableFuture._
+import recipestore.{AppResource, ResourceLoader}
 
 import scala.collection.JavaConverters._
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -18,9 +16,8 @@ import scala.concurrent.Future
 object DseGraphDAO {
   val logger: Logger = LoggerFactory.getLogger(DseGraphDAO.getClass)
   val sessionCache: MutableCache[String, DseSession] = MapCache.empty[String, DseSession].toMutable()
-  val clusterName = get.apply(Resource.tinkerpop, "cluster_name").toOption.getOrElse("")
-  val isProductionCode = get.apply(Resource.tinkerpop, "is_production_mode")
-    .toOption
+  val clusterName = ResourceLoader(AppResource.TinkerpopResource, "cluster_name").getOrElse("")
+  val isProductionCode = ResourceLoader(AppResource.TinkerpopResource, "is_production_mode")
     .getOrElse("false")
     .toBoolean
 
@@ -34,7 +31,7 @@ object DseGraphDAO {
 
   private def initSession(graphName: String): DseSession = {
     this.synchronized {
-      val dseHost: String = ResourceLoader.get.apply(ResourceLoader.Resource.tinkerpop, "dse_host").orElseGet(null)
+      val dseHost: String = ResourceLoader(AppResource.TinkerpopResource, "dse_host").getOrElse(null)
       val poolingOptions = new PoolingOptions();
       poolingOptions
         .setConnectionsPerHost(HostDistance.LOCAL, 4, 10)

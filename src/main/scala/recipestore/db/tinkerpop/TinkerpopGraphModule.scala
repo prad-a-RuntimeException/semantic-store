@@ -4,11 +4,9 @@ import com.google.inject.Guice.createInjector
 import com.google.inject.Provides
 import net.codingwell.scalaguice.ScalaModule
 import org.apache.spark.sql.DataFrame
-import recipestore.ResourceLoader._
-import recipestore.db.triplestore.CommonModule
 import recipestore.graph.SparkFactory
-import recipestore.misc.OptionConvertors._
 import recipestore.nlp.NlpModuleApi
+import recipestore.{AppResource, CommonModule, ResourceLoader}
 
 object TinkerpopGraphModule {
   def main(args: Array[String]): Unit = {
@@ -28,9 +26,8 @@ object TinkerpopGraphModule {
 
 class TinkerpopGraphModule extends CommonModule with ScalaModule with SparkFactory {
 
-  val clusterName = get.apply(Resource.tinkerpop, "cluster_name").toOption.getOrElse("")
-  val isProductionCode = get.apply(Resource.tinkerpop, "is_production_mode")
-    .toOption
+  val clusterName = ResourceLoader(AppResource.TinkerpopResource, "cluster_name").getOrElse("")
+  val isProductionCode = ResourceLoader(AppResource.TinkerpopResource, "is_production_mode")
     .getOrElse("false")
     .toBoolean
 

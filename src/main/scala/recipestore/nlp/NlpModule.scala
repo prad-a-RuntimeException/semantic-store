@@ -7,13 +7,12 @@ import com.google.inject.Provides
 import com.twitter.storehaus.cache.{MapCache, Memoize}
 import net.codingwell.scalaguice.ScalaModule
 import org.apache.lucene.analysis.Analyzer
-import recipestore.ResourceLoader
 import recipestore.graph.GraphModule
-import recipestore.misc.OptionConvertors._
 import recipestore.nlp.NlpModule.luceneDAO
 import recipestore.nlp.corpus.WordnetApi
 import recipestore.nlp.corpus.ingredient.WordnetCorpusFactory
 import recipestore.nlp.lucene.LuceneDAO
+import recipestore.{AppResource, ResourceLoader}
 
 object NlpModule {
   val wordnetIndexDir = "wordnet"
@@ -30,9 +29,9 @@ object NlpModule {
 
 class NlpModule(indexDir: String) extends GraphModule with ScalaModule {
 
-  final lazy val baseDir: String = ResourceLoader.get
-    .apply(ResourceLoader.Resource.lucene, "index-dir")
-    .toOption.getOrElse("")
+  final lazy val baseDir: String = ResourceLoader(AppResource.LuceneResource
+    , "index-dir")
+    .getOrElse("")
   var analyzer: Analyzer = null
   final val wordnetStream: InputStream = Resources.getResource("wordnet.fn").openStream()
 

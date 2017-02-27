@@ -1,4 +1,4 @@
-package recipestore.input;
+package recipestore.db.triplestore;
 
 import java.util.List;
 import java.util.function.Predicate;

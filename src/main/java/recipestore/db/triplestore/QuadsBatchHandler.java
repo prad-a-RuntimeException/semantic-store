@@ -5,7 +5,6 @@ import org.apache.jena.graph.Triple;
 import org.apache.jena.riot.other.StreamRDFBatchHandler;
 import org.apache.jena.sparql.core.Quad;
 import org.slf4j.Logger;
-import recipestore.input.RecipePredicates;
 
 import javax.inject.Inject;
 import java.util.List;

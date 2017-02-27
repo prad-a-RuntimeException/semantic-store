@@ -5,12 +5,10 @@ import java.util.concurrent.atomic.AtomicInteger
 
 import org.apache.spark.sql.types._
 import org.joda.time.DateTime
-import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
 import org.scalatest.{FunSuite, Matchers}
 import org.slf4j.{Logger, LoggerFactory}
 
-@RunWith(classOf[JUnitRunner])
+
 class DataTypeHelper$Test extends FunSuite with Matchers {
 
   val LOGGER: Logger = LoggerFactory.getLogger(classOf[DataTypeHelper$Test])

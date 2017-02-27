@@ -4,8 +4,6 @@ import com.google.common.io.Resources
 import org.apache.jena.rdf.model.{ModelFactory, Resource}
 import org.apache.spark.sql.Row
 import org.graphframes.GraphFrame
-import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
 import org.scalatest.{FunSuite, Matchers}
 
 import scala.collection.JavaConverters._

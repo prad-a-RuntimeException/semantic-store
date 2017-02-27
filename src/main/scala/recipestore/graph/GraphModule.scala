@@ -2,10 +2,8 @@ package recipestore.graph
 
 import java.util.ResourceBundle
 
-import com.google.inject.name.Names
 import com.google.inject.{Guice, Provides}
 import net.codingwell.scalaguice.ScalaModule
-import recipestore.db.triplestore.CommonModule
 import recipestore.input.{InputModule, RecipeApi}
 
 object GraphModule {
@@ -18,7 +16,7 @@ object GraphModule {
   }
 }
 
-class GraphModule extends CommonModule with ScalaModule {
+class GraphModule extends InputModule with ScalaModule {
 
   @Provides
   def getRecipeApi(): RecipeApi = {
@@ -27,6 +25,5 @@ class GraphModule extends CommonModule with ScalaModule {
 
   override protected def configure(): Unit = {
     super.configure()
-    bind(classOf[String]).annotatedWith(Names.named("graphDirectory")).toInstance(GraphModule.graphDirectory)
   }
 }
