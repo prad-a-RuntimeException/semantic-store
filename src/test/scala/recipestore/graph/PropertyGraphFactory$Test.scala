@@ -13,7 +13,7 @@ import scala.collection.mutable
 class PropertyGraphFactory$Test extends FunSuite with Matchers {
 
 
-  test("Should create PropertyGraph(Spark GraphFrames) from Semantic resource") {
+  test("Should create PropertyGraph(Spark GraphFrames) from Semantic resource", IntegrationTest) {
     val recipeModel = ModelFactory.createDefaultModel.read(Resources.getResource("sample_recipe.rdf").openStream, "http://schema.org/Recipe")
     val sampleRecipeUnderTest: mutable.Seq[Resource] = recipeModel.listStatements.toList.asScala.map(stmt => stmt.getSubject)
     sampleRecipeUnderTest.size should be > 0

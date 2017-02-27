@@ -30,6 +30,11 @@ sourceSets {
 //    maxParallelForks = 4
 //}
 
+test {
+    tags {
+        exclude 'integrationTest'
+    }
+}
 
 repositories {
     maven { url "http://repo.maven.apache.org/maven2" }

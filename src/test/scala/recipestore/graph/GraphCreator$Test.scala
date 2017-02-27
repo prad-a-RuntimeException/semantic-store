@@ -3,9 +3,11 @@ package recipestore.graph
 import com.google.inject.{Guice, Injector}
 import org.apache.spark.sql.{DataFrame, Row}
 import org.graphframes.GraphFrame
-import org.scalatest.{BeforeAndAfter, FunSuite, Matchers}
+import org.scalatest.{BeforeAndAfter, FunSuite, Matchers, Tag}
 
 import scala.collection.immutable.Seq
+object IntegrationTest extends Tag("integrationTest")
+
 
 class GraphCreator$Test extends FunSuite with BeforeAndAfter {
 
@@ -18,7 +20,7 @@ class GraphCreator$Test extends FunSuite with BeforeAndAfter {
     graphCreator.write(-1)
   }
 
-  ignore("Should Persist the GraphFrame and reload it") {
+  test("Should Persist the GraphFrame and reload it", IntegrationTest) {
 
     val reloadedGraphFrame: GraphFrame = (() => graphLoader.loadFromFile()).apply()
     val vertices: DataFrame = reloadedGraphFrame.vertices
