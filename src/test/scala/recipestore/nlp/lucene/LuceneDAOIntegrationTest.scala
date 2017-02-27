@@ -3,9 +3,9 @@ package recipestore.nlp.lucene
 import com.github.javafaker.Faker
 import com.google.inject.{Guice, Injector}
 import org.apache.lucene.analysis.standard.StandardAnalyzer
-
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{BeforeAndAfter, FunSuite, Matchers}
+import recipestore.graph.IntegrationTest
 import recipestore.nlp.NlpModule
 
 import scala.collection.immutable.IndexedSeq
@@ -38,7 +38,7 @@ class LuceneDAOIntegrationTest extends FunSuite with Matchers with BeforeAndAfte
     writeApi.write(testVals)
   }
 
-  test("Should query the created lucene database") {
+  test("Should query the created lucene database", IntegrationTest) {
     val queryResult: Iterable[Map[String, Iterable[String]]] = searchApi.query(testVals.head.get("name").toString, "name", 3)
     // We are using faker and there is statistically minuscule chance of two names having the same token
     queryResult.size should be >= 1

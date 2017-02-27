@@ -31,6 +31,8 @@ sourceSets {
 //}
 
 test {
+    minHeapSize = "512m"
+    maxHeapSize = "1g"
     tags {
         exclude 'integrationTest'
     }
